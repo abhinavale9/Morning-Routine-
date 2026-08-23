@@ -129,7 +129,7 @@ button{font:inherit}
 </section>
 
 
-<section id="settingsPage" style="display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:1200;overflow:auto;padding:22px;box-sizing:border-box">
+<section id="settingsPage" style="display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:200000;overflow:auto;padding:22px;box-sizing:border-box">
 <div style="max-width:520px;margin:auto">
 <div class="trHead"><button class="trBack" id="settingsBack">‹</button><div class="trTitle">SETTINGS</div></div>
 <div class="trCard">
@@ -209,10 +209,9 @@ button{font:inherit}
       <button class="option" id="homeTrackerBtn" type="button"><span class="option-name">Tracker</span><span class="option-time">→</span></button>
     </div>
     <div class="menu" style="gap:8px">
-      <button class="option" id="homeSoundBtn" type="button"><span class="option-name">Sound</span><span class="option-time" id="homeSoundLabel">On</span></button>
-      <button class="option" id="homeVoiceBtn" type="button"><span class="option-name">Voice</span><span class="option-time" id="homeVoiceLabel">On</span></button>
-      <button class="option" id="homeWakeBtn" type="button"><span class="option-name">Screen Awake</span><span class="option-time" id="homeWakeLabel">On</span></button><button id="homeInstallBtn" type="button">Install App</button>
-    </div>
+       <button class="option" id="homeSettingsBtn" type="button"><span class="option-name">Settings</span><span class="option-time">⚙</span></button>
+       <button id="homeInstallBtn" type="button">Install App</button>
+     </div>
   </div>
 
   <div id="routineChooser" style="display:none;height:100%;flex-direction:column">
@@ -485,9 +484,6 @@ q("routineChooserBack").onclick=function(){q("routineChooser").style.display="no
 
 // Original timer engine expects .option buttons; it will bind to both sets,
 // so only the visible routine chooser should contain the clickable routine options.
-q("homeSoundBtn").onclick=()=>{const b=document.getElementById("sound");if(b)b.click();setTimeout(()=>q("homeSoundLabel").textContent=b?b.textContent:"On",0)};
-q("homeVoiceBtn").onclick=()=>{const b=document.getElementById("voice");if(b)b.click();setTimeout(()=>q("homeVoiceLabel").textContent=b?b.textContent:"Off",0)};
-q("homeWakeBtn").onclick=()=>{const b=document.getElementById("wake");if(b)b.click();setTimeout(()=>q("homeWakeLabel").textContent=b?b.textContent:"On",0)};
 
 q("trBackup").onclick=function(){let b=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:4,progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click()};
 q("trRestore").onclick=()=>q("trFile").click();
@@ -530,6 +526,7 @@ setInterval(()=>{let ex=document.getElementById("exercise"),ti=document.getEleme
 (function(){
 "use strict";
 const KEY="morningRoutine.progress.enhanced.v2";
+let calendarMonth=new Date();
 const q=id=>document.getElementById(id);
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}};
 const save=x=>localStorage.setItem(KEY,JSON.stringify(x));
@@ -551,11 +548,22 @@ function render(){
  const lb=localStorage.getItem("morningRoutine.lastBackup");q("teBackupMeta").textContent=lb?"Last backup: "+lb:"No backup recorded";
 }
 function renderCalendar(now){
- const y=now.getFullYear(),m=now.getMonth(),cal=q("teCalendar");cal.innerHTML="";q("teMonthTitle").textContent=now.toLocaleString("en-US",{month:"long",year:"numeric"}).toUpperCase();
+ const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),cal=q("teCalendar");
+ cal.innerHTML="";
+ q("teMonthTitle").textContent=calendarMonth.toLocaleString("en-US",{month:"long",year:"numeric"}).toUpperCase();
  ["M","T","W","T","F","S","S"].forEach(n=>{const h=document.createElement("div");h.className="teCalHead";h.textContent=n;cal.appendChild(h)});
  const first=new Date(y,m,1),off=(first.getDay()+6)%7,last=new Date(y,m+1,0).getDate();
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
- for(let day=1;day<=last;day++){const d=new Date(y,m,day),s=stat(d),c=document.createElement("button");c.type="button";c.className="teCalDay"+(s.full?" full":(s.done?" partial":""))+(key(d)===key(now)?" today":"");c.textContent=day;if(s.done){const dot=document.createElement("span");dot.className="mark";c.appendChild(dot)}c.onclick=()=>detail(d);cal.appendChild(c)}
+ const todayKey=key(new Date());
+ for(let day=1;day<=last;day++){
+   const d=new Date(y,m,day),s=stat(d),c=document.createElement("button");
+   c.type="button";
+   c.className="teCalDay"+(s.full?" full":(s.done?" partial":""))+(key(d)===todayKey?" today":"");
+   c.textContent=day;
+   if(s.done){const dot=document.createElement("span");dot.className="mark";c.appendChild(dot)}
+   c.onclick=()=>detail(d);
+   cal.appendChild(c);
+ }
 }
 function detail(d){
  const s=stat(d),x=q("teDetail");x.style.display="block";x.innerHTML='<div class="teLabel">'+d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+"</div>";
@@ -566,11 +574,13 @@ function renderHistory(){
  Object.keys(load()).sort().reverse().slice(0,30).forEach(k=>{const s=stat(new Date(k+"T12:00:00")),r=document.createElement("div");r.className="teRow";r.innerHTML="<span>"+k+"</span><span>"+s.done+" / "+s.total+" · "+s.pct+"%</span>";r.onclick=()=>detail(new Date(k+"T12:00:00"));h.appendChild(r)})
 }
 const homeTracker=document.getElementById("homeTrackerBtn");
-if(homeTracker)homeTracker.onclick=()=>{calendarMonth=new Date();render();q("trackerEnhanced").style.display="block"};
-q("teBack").onclick=()=>q("trackerEnhanced").style.display="none";
+if(homeTracker)homeTracker.onclick=()=>{calendarMonth=new Date();q("trackerEnhanced").style.display="block";render();};
+q("teBack").onclick=()=>{q("trackerEnhanced").style.display="none";showOnly("home");};
 if(q("teBackup"))q("teBackup").onclick=()=>{const blob=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:7,created:new Date().toISOString(),progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click();localStorage.setItem("morningRoutine.lastBackup",new Date().toLocaleDateString("en-GB"));setTimeout(render,100)};
 if(q("teRestore"))q("teRestore").onclick=()=>q("teFile").click();
 if(q("teFile"))q("teFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.progress)throw 0;save(x.progress);render();alert("Backup restored successfully.")}catch(z){alert("Invalid backup file.")}};r.readAsText(f);e.target.value=""};
+q("tePrevMonth").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar(calendarMonth)};
+q("teNextMonth").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar(calendarMonth)};
 window.MorningRoutineEnhancedTracker={render,mark};
 })();
 </script>
@@ -638,8 +648,6 @@ $("settingsBack").onclick=()=>{$("settingsPage").style.display="none"};
 $("homeSoundSetting").onclick=()=>{ $("sound").click(); sync() };
 $("homeVoiceSetting").onclick=()=>{ $("voice").click(); sync() };
 $("homeWakeSetting").onclick=()=>{ $("wake").click(); sync() };
-$("tePrevMonth").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()-1);renderCalendar(calendarMonth)};
-$("teNextMonth").onclick=()=>{calendarMonth.setMonth(calendarMonth.getMonth()+1);renderCalendar(calendarMonth)};
 $("settingsBackup").onclick=()=>{
  let progress={};try{progress=JSON.parse(localStorage.getItem("morningRoutine.progress.enhanced.v2")||"{}")}catch(e){}
  const data={format:"MorningRoutineBackup",version:8,created:new Date().toISOString(),progress,
