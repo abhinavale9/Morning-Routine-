@@ -1,9 +1,15 @@
-Morning Routine PWA
+Morning Routine PWA v3
 
-1. Upload the contents of this folder to an HTTPS web host.
-2. Open the HTTPS URL in Chrome on Android.
-3. Use Install / Add to Home Screen.
-4. After the first load, the service worker caches the app for offline use.
+Replace the existing GitHub Pages files with these five files:
+- index.html
+- sw.js
+- manifest.json
+- icon-192.svg
+- icon-512.svg
 
-Important: a file:// HTML file cannot be installed as a normal PWA. PWA
-installation requires HTTPS (localhost is suitable for development).
+This version uses a versioned service-worker cache (v3), updateViaCache:none,
+and network-first fetching for index.html so new deployments are picked up.
+
+After committing, wait for GitHub Pages to deploy. If an installed PWA still
+shows the old version, remove the old installed app/site data once and
+reinstall it.
