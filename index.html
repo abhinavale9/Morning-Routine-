@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#000">
+<title>Morning Routine</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow:hidden}
+button{font:inherit}
+.page{height:100dvh;max-width:520px;margin:auto}
+.home{display:flex;flex-direction:column;padding:28px 22px 20px}
+.home-head{display:flex;align-items:center;justify-content:space-between}
+.home-title{font-size:13px;letter-spacing:2px;font-weight:400}
+.calendar-btn{border:0;background:transparent;color:#777;font-size:22px;width:40px;height:40px;border-radius:50%}
+.calendar-btn:active{background:#171717}
+.calendar{display:none;flex-direction:column;padding:22px}
+.calendar-content{flex:1;padding-top:40px}
+.day-block{padding:22px 4px;border-bottom:1px solid #222}
+.day-name{font-size:13px;letter-spacing:1.5px;color:#777;margin-bottom:12px}
+.day-routine{font-size:20px;line-height:1.45;font-weight:400;color:#eee}
+.menu{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.option{width:100%;min-height:72px;border:1px solid #222;border-radius:18px;background:#0c0c0c;color:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.option:active{background:#171717}
+.option-name{font-size:20px;font-weight:400}
+.option-time{font-size:13px;color:#777;letter-spacing:1px}
+.timer{display:none;flex-direction:column;padding:22px}
+.top{height:42px;display:flex;align-items:center;justify-content:space-between;color:#777}
+.back{border:0;background:transparent;color:#777;font-size:28px;width:42px;height:42px;padding:0}
+.timer-title{font-size:13px;letter-spacing:2px;color:#fff;font-weight:400;margin-left:8px;flex:1}
+.counter{font-size:13px;letter-spacing:1px;font-variant-numeric:tabular-nums}
+.center{flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.exercise{font-size:clamp(27px,8vw,42px);font-weight:400;line-height:1.05;letter-spacing:-1px;text-transform:uppercase;max-width:460px;margin:0 auto}
+.side{height:24px;margin-top:12px;font-size:14px;color:#888}
+.seconds{font-size:clamp(110px,31vw,165px);font-weight:300;line-height:.95;letter-spacing:-6px;font-variant-numeric:tabular-nums;margin:26px 0 20px}
+.unit{font-size:13px;color:#777;letter-spacing:1px}
+.progress{height:3px;background:#292929;border-radius:5px;overflow:hidden;margin-top:25px}
+.bar{height:100%;width:0;background:#fff}
+.controls{display:grid;grid-template-columns:72px 1fr 72px;gap:10px}
+.controls button{border:0;background:transparent;color:#fff;height:56px;border-radius:18px;font-size:15px;font-weight:500}
+.controls button:active{background:#1a1a1a}
+.primary{background:#fff!important;color:#000!important;font-size:17px!important}
+.bottom{text-align:center;margin-top:8px}
+.settings{border:0;background:#111;color:#777;width:38px;height:38px;border-radius:50%}
+.panel{position:fixed;left:50%;bottom:18px;transform:translate(-50%,120%);width:min(90%,420px);background:#171717;border:1px solid #292929;border-radius:22px;padding:18px;transition:.2s;z-index:30}
+.panel.open{transform:translate(-50%,0)}
+.row{display:flex;align-items:center;justify-content:space-between;padding:12px 2px;color:#ddd}
+.row button{height:38px;padding:0 13px;border:0;border-radius:12px;background:#292929;color:#fff}
+.close{width:100%;height:42px;border:0;border-radius:12px;background:#fff;color:#000;margin-top:8px}
+.gym{display:none;flex-direction:column;padding:22px;overflow:auto}
+.gym-header{display:flex;align-items:center}
+.gym-title{font-size:13px;letter-spacing:2px;font-weight:400;margin-left:8px}
+.gym-content{padding:28px 4px}
+.gym-duration{font-size:14px;color:#777;letter-spacing:1px;margin-bottom:12px}
+.day{font-size:27px;font-weight:400;margin:0 0 20px}
+.list{display:flex;flex-direction:column;gap:0}
+.item{font-size:18px;font-weight:400;padding:13px 0;border-bottom:1px solid #181818}
+.divider{height:1px;background:#222;margin:28px 0}
+.countdown{position:fixed;inset:0;background:#000;z-index:50;display:none;align-items:center;justify-content:center;font-size:clamp(120px,35vw,190px);font-weight:300}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Morning Routine">
+</head>
+<body>
+
+<section id="home" class="page home">
+  <div class="home-head"><div class="home-title">MORNING ROUTINE</div><button class="calendar-btn" id="calendarBtn" type="button" aria-label="Weekly routine">▣</button></div>
+  <div class="menu">
+    <button class="option" data-key="morning"><span class="option-name">Warmup</span><span class="option-time">~7 MIN&nbsp; →</span></button>
+    <button class="option" data-key="gym"><span class="option-name">Gym</span><span class="option-time">~30 MIN&nbsp; →</span></button>
+    <button class="option" data-key="core"><span class="option-name">Core</span><span class="option-time">~4 MIN&nbsp; →</span></button>
+    <button class="option" data-key="foam"><span class="option-name">Foam Rolling</span><span class="option-time">~4 MIN&nbsp; →</span></button>
+    <button class="option" data-key="yoga"><span class="option-name">Yoga</span><span class="option-time">~10 MIN&nbsp; →</span></button>
+    <button class="option" data-key="meditation"><span class="option-name">Meditation</span><span class="option-time">~7 MIN&nbsp; →</span></button>
+    <button class="option" data-key="hiit"><span class="option-name">HIIT</span><span class="option-time">~17 MIN&nbsp; →</span></button>
+  </div>
+</section>
+
+
+<section id="calendar" class="page calendar">
+  <div class="top">
+    <button class="back" id="calendarBack">‹</button>
+    <div class="timer-title">WEEKLY ROUTINE</div>
+  </div>
+  <div class="calendar-content">
+    <div class="day-block"><div class="day-name">MON / TUE / THU / FRI</div><div class="day-routine">Warmup → Gym → Core → Foam Rolling → Yoga → Meditation</div></div>
+    <div class="day-block"><div class="day-name">WED / SAT</div><div class="day-routine">Warmup → Walk → Core → Foam Rolling → Yoga → Meditation</div></div>
+    <div class="day-block"><div class="day-name">SUN</div><div class="day-routine">Warmup → HIIT → Meditation</div></div>
+  </div>
+</section>
+
+<section id="timer" class="page timer">
+  <div class="top">
+    <button class="back" id="timerBack">‹</button>
+    <div class="timer-title" id="timerTitle"></div>
+    <div class="counter" id="counter"></div>
+  </div>
+  <div class="center">
+    <div class="exercise" id="exercise"></div>
+    <div class="side" id="side"></div>
+    <div class="seconds" id="seconds">00</div>
+    <div class="unit">SECONDS</div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+  </div>
+  <div class="controls">
+    <button id="skip">Skip</button>
+    <button class="primary" id="main">▶ Start</button>
+    <button id="restart">↻</button>
+  </div>
+  <div class="bottom"><button class="settings" id="settings">⚙</button></div>
+</section>
+
+<section id="gym" class="page gym">
+  <div class="gym-header">
+    <button class="back" id="gymBack">‹</button>
+    <div class="gym-title">GYM</div>
+  </div>
+  <div class="gym-content">
+    <div class="gym-duration">~30 MIN</div>
+    <div class="day">Day 1 · Mon, Thu</div>
+    <div class="list">
+      <div class="item">Machine Chest Press</div>
+      <div class="item">Incline Dumbbell Press</div>
+      <div class="item">Machine Shoulder Press</div>
+      <div class="item">Leg Extension / Leg Press</div>
+      <div class="item">Lateral Raises</div>
+      <div class="item">Triceps Pushdown</div>
+    </div>
+    <div class="divider"></div>
+    <div class="day">Day 2 · Tue, Fri</div>
+    <div class="list">
+      <div class="item">Romanian Deadlift BB / DB</div>
+      <div class="item">Lat Pulldown</div>
+      <div class="item">Chest-Supported Seated Row</div>
+      <div class="item">Seated Leg Curl</div>
+      <div class="item">Biceps Pulldown / Preacher Curl</div>
+      <div class="item">Calf Raises</div>
+    </div>
+  </div>
+</section>
+
+<div id="countdown" class="countdown"></div>
+
+<div id="panel" class="panel">
+  <div class="row"><span>Sound</span><button id="sound">On</button></div>
+  <div class="row"><span>Voice</span><button id="voice">Off</button></div>
+  <div class="row"><span>Keep screen awake</span><button id="wake">On</button></div>
+  <button class="close" id="close">Done</button>
+</div>
+
+<script>
+(function(){
+const routines={
+ morning:{title:"Warmup",s:[
+  ["Overhead Stretch",10],["Wrist Rotation",10],["Neck Rotation",10],
+  ["Rest",5,1],["Arm Rotation",15],["Standing Thoracic Rotations",15],
+  ["Rest",5,1],["Hip Rotation",15],["Body Circles",15],
+  ["Rest",5,1],["Standing Toe Touch",10],["Cross-Body Toe Touch",10],
+  ["Jumping Jacks",10],["Rest",10,1],["Cat Cow",40],["Rest",10,1],
+  ["World's Greatest Stretch",40,0,"20s each side"],["Rest",10,1],
+  ["90/90 Hip Rotations",40],["Rest",10,1],["Ankle Knee-to-Wall",40,0,"20s each side"],
+  ["Rest",10,1],["Glute Bridge",40]
+ ]},
+ core:{title:"Core",s:[
+  ["Plank",30],["Rest",15,1],["Push Up",30],["Rest",15,1],
+  ["Hollow Body Hold",30],["Rest",15,1],["Crunch",30],["Rest",15,1],
+  ["Russian Twist",30],["Rest",30,1]
+ ]},
+ foam:{title:"Foam Rolling",s:[
+  ["Glutes / Piriformis — Left",20],["Rest",5,1],["Glutes / Piriformis — Right",20],
+  ["Quads",45],["Calves",45],["Upper Back / Thoracic",45],["Hamstrings",45],["Rest",15,1]
+ ]},
+ yoga:{title:"Yoga",s:[
+  ["Child's Pose (Balasana)",60],["Downward-Facing Dog (Adho Mukha Svanasana)",60],
+  ["Low Lunge (Anjaneyasana)",60],["Half Split (Ardha Hanumanasana)",60],
+  ["Pigeon Pose (Eka Pada Rajakapotasana)",60],["Sphinx Pose (Salamba Bhujangasana)",60],
+  ["Puppy Pose (Uttana Shishosana)",60],["Seated Spinal Twist (Ardha Matsyendrasana)",60],
+  ["Butterfly Pose (Baddha Konasana)",60],["Savasana + Slow Nasal Breathing",60]
+ ]},
+ meditation:{title:"Meditation",s:[["Meditation",420]]},
+ hiit:{title:"HIIT",s:[
+  ["Ghost Rope Jumps",40],["Rest",20,1],
+  ["Jumping Jacks",20],["Seal Jacks",20],["Rest",20,1],
+  ["Fast High Knees",40],["Rest",20,1],
+  ["Mountain Climbers — Straight",20],["Mountain Climbers — Cross",20],["Rest",20,1],
+  ["Fast Butt Kicks",40],["Rest",20,1],
+  ["Fast Step-Ups — Left",20],["Fast Step-Ups — Right",20],["Rest",20,1],
+  ["Skater Steps",40],["Rest",20,1],
+  ["Squat + Knee Drive",40],["Rest",20,1],
+  ["Shadow Boxing + Footwork",40],["Rest",20,1],
+  ["Standing Cross-Body Punches",40],["Rest",20,1],
+  ["Rest",120,1],
+  ["Stationary Bike — Fast",35],["Stationary Bike — Slow",25],
+  ["Stationary Bike — Fast",35],["Stationary Bike — Slow",25],
+  ["Stationary Bike — Fast",35],["Stationary Bike — Slow",25],
+  ["Stationary Bike — Fast",35],["Stationary Bike — Slow",25],
+  ["Stationary Bike — Fast",35],["Stationary Bike — Slow",25]
+ ]}
+};
+
+let key="morning",steps=routines[key].s,index=0,left=steps[0][1],running=false,interval=null,countdown=false,audio=null,wakelock=null;
+let sound=localStorage.getItem("morningSound")!=="off";
+let voice=localStorage.getItem("morningVoice")==="on";
+let wake=localStorage.getItem("morningWake")!=="off";
+
+const home=document.getElementById("home"),timer=document.getElementById("timer"),gym=document.getElementById("gym"),calendar=document.getElementById("calendar");
+const title=document.getElementById("timerTitle"),counter=document.getElementById("counter"),exercise=document.getElementById("exercise");
+const side=document.getElementById("side"),seconds=document.getElementById("seconds"),bar=document.getElementById("bar"),main=document.getElementById("main");
+
+function showOnly(view){
+ home.style.display=view==="home"?"flex":"none";
+ timer.style.display=view==="timer"?"flex":"none";
+ gym.style.display=view==="gym"?"flex":"none";
+ calendar.style.display=view==="calendar"?"flex":"none";
+}
+function select(k){
+ if(k==="gym"){stop();showOnly("gym");return}
+ key=k;steps=routines[k].s;index=0;left=steps[0][1];stop();
+ title.textContent=routines[k].title.toUpperCase();main.textContent="▶ Start";
+ showOnly("timer");render();
+}
+function stop(){if(interval)clearInterval(interval);interval=null;running=false;countdown=false;releaseWake()}
+function back(){stop();showOnly("home")}
+function num(){return steps.slice(0,index+1).filter(x=>!x[2]).length}
+function total(){return steps.filter(x=>!x[2]).length}
+function render(){
+ const x=steps[index];
+ counter.textContent=String(num()).padStart(2,"0")+" / "+String(total()).padStart(2,"0");
+ exercise.textContent=x[2]?"REST":x[0];
+ side.textContent=x[2]?"":(x[3]||"");
+ seconds.textContent=String(left).padStart(2,"0");
+ bar.style.width=((1-left/x[1])*100)+"%";
+}
+function tone(kind){
+ if(!sound)return;
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();audio.resume();
+  const now=audio.currentTime;
+  if(kind==="three"){
+   const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=880;
+   g.gain.setValueAtTime(.0001,now);g.gain.exponentialRampToValueAtTime(.16,now+.01);g.gain.exponentialRampToValueAtTime(.0001,now+.16);
+   o.connect(g).connect(audio.destination);o.start(now);o.stop(now+.18);
+  }else{
+   [0,.16].forEach((d,j)=>{const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=j?988:659;
+    g.gain.setValueAtTime(.0001,now+d);g.gain.exponentialRampToValueAtTime(.18,now+d+.01);g.gain.exponentialRampToValueAtTime(.0001,now+d+.22);
+    o.connect(g).connect(audio.destination);o.start(now+d);o.stop(now+d+.24)});
+  }
+ }catch(e){}
+}
+function speak(text){
+ if(!voice||!("speechSynthesis"in window))return;
+ speechSynthesis.cancel();
+ text=text.replace(/\s*\([^)]*\)/g,"").replace(/\bStep-Ups\b/gi,"step ups").replace(/\s+/g," ").trim();
+ const vs=speechSynthesis.getVoices(),v=vs.find(x=>/female|samantha|ava|susan|karen|victoria|zira|google.*female/i.test(x.name+" "+x.voiceURI));
+ const u=new SpeechSynthesisUtterance(text);if(v)u.voice=v;u.rate=1.02;u.pitch=1.12;speechSynthesis.speak(u);
+}
+async function keepWake(){if(!wake||!("wakeLock"in navigator))return;try{wakelock=await navigator.wakeLock.request("screen")}catch(e){}}
+function releaseWake(){if(wakelock){wakelock.release().catch(()=>{});wakelock=null}}
+function start(){
+ if(countdown)return;countdown=true;const c=document.getElementById("countdown");c.style.display="flex";let n=3;c.textContent=n;
+ const t=setInterval(()=>{n--;if(n>0)c.textContent=n;else{clearInterval(t);c.style.display="none";countdown=false;running=true;main.textContent="⏸ Pause";speak(steps[index][2]?"Rest":steps[index][0]);keepWake();interval=setInterval(tick,1000)}},1000);
+}
+function toggle(){
+ if(running){stop();main.textContent="▶ Resume"}
+ else{try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();audio.resume()}catch(e){}start()}
+}
+function tick(){
+ if(left>0){left--;if(left===3&&!steps[index][2])tone("three");render();return}
+ tone("complete");index++;
+ if(index>=steps.length){finish();return}
+ left=steps[index][1];render();speak(steps[index][2]?"Rest":steps[index][0]);
+}
+function skip(){if(!running)return;index++;if(index>=steps.length){finish();return}left=steps[index][1];render();speak(steps[index][2]?"Rest":steps[index][0])}
+function restart(){stop();index=0;left=steps[0][1];main.textContent="▶ Start";render()}
+function finish(){stop();left=0;exercise.textContent="GREAT JOB";side.textContent="";seconds.textContent="00";bar.style.width="100%";main.textContent="↻ Restart";tone("complete");speak("Workout complete. Great job!")}
+function settings(){document.getElementById("panel").classList.toggle("open")}
+function setSound(){sound=!sound;localStorage.setItem("morningSound",sound?"on":"off");document.getElementById("sound").textContent=sound?"On":"Off"}
+function setVoice(){voice=!voice;localStorage.setItem("morningVoice",voice?"on":"off");document.getElementById("voice").textContent=voice?"On":"Off"}
+function setWake(){wake=!wake;localStorage.setItem("morningWake",wake?"on":"off");document.getElementById("wake").textContent=wake?"On":"Off";if(wake&&running)keepWake();if(!wake)releaseWake()}
+
+document.querySelectorAll(".option").forEach(b=>b.addEventListener("click",()=>select(b.dataset.key)));
+document.getElementById("calendarBtn").onclick=()=>{stop();showOnly("calendar")};
+document.getElementById("calendarBack").onclick=back;
+document.getElementById("timerBack").onclick=back;
+document.getElementById("gymBack").onclick=back;
+document.getElementById("main").onclick=toggle;
+document.getElementById("skip").onclick=skip;
+document.getElementById("restart").onclick=restart;
+document.getElementById("settings").onclick=settings;
+document.getElementById("close").onclick=settings;
+document.getElementById("sound").onclick=setSound;
+document.getElementById("voice").onclick=setVoice;
+document.getElementById("wake").onclick=setWake;
+document.getElementById("sound").textContent=sound?"On":"Off";
+document.getElementById("voice").textContent=voice?"On":"Off";
+document.getElementById("wake").textContent=wake?"On":"Off";
+showOnly("home");
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
