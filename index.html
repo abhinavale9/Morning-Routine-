@@ -103,7 +103,7 @@ button{font:inherit}
 #trackerEnhanced .teCalDay.full .mark{background:#000}
 #trackerEnhanced .teDetail{border-top:1px solid #181818;margin-top:12px;padding-top:10px}
 #trackerEnhanced .teDetailRow{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;color:#aaa}
-#trackerEnhanced .teAction{width:100%;height:44px;background:#111;color:#fff;border:1px solid #333;border-radius:12px;margin-top:8px}
+#trackerEnhanced .teAction{width:100%;height:44px;background:#111;color:#fff;border:1px solid #333;border-radius:12px;margin-top:8px}#trackerEnhanced .teDetail .teDone{margin-left:10px}
 </style>
 
 <style id="loginStyles">
@@ -573,8 +573,22 @@ function renderCalendar(now){
  }
 }
 function detail(d){
- const s=stat(d),x=q("teDetail");x.style.display="block";x.innerHTML='<div class="teLabel">'+d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+"</div>";
- s.p.forEach(n=>{const r=document.createElement("div");r.className="teDetailRow";r.innerHTML="<span>"+n+"</span><span>"+(s.x[n]?"✓ Complete":"○ Pending")+"</span>";x.appendChild(r)})
+ const s=stat(d),x=q("teDetail");
+ x.style.display="block";
+ x.innerHTML='<div class="teLabel">'+d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+"</div>";
+ s.p.forEach(n=>{
+   const r=document.createElement("div");
+   r.className="teDetailRow";
+   const label=document.createElement("span");
+   label.textContent=n;
+   const b=document.createElement("button");
+   b.className="teDone"+(s.x[n]?" ok":"");
+   b.textContent=s.x[n]?"✓ Complete":"Mark Complete";
+   if(!s.x[n]) b.onclick=()=>mark(n,d);
+   r.appendChild(label);
+   r.appendChild(b);
+   x.appendChild(r);
+ });
 }
 function renderHistory(){
  const h=q("teHistory");h.innerHTML="";
@@ -582,7 +596,7 @@ function renderHistory(){
 }
 const homeTracker=document.getElementById("homeTrackerBtn");
 if(homeTracker)homeTracker.onclick=()=>{calendarMonth=new Date();render();q("trackerEnhanced").style.display="block"};
-q("teBack").onclick=()=>q("trackerEnhanced").style.display="none";
+q("teBack").onclick=()=>{q("trackerEnhanced").style.display="none";q("home").style.display="flex";};
 if(q("teBackup"))q("teBackup").onclick=()=>{const blob=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:7,created:new Date().toISOString(),progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click();localStorage.setItem("morningRoutine.lastBackup",new Date().toLocaleDateString("en-GB"));setTimeout(render,100)};
 if(q("teRestore"))q("teRestore").onclick=()=>q("teFile").click();
 if(q("teFile"))q("teFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.progress)throw 0;save(x.progress);render();alert("Backup restored successfully.")}catch(z){alert("Invalid backup file.")}};r.readAsText(f);e.target.value=""};
