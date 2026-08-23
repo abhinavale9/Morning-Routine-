@@ -140,7 +140,7 @@ button{font:inherit}
 </style>
 <style id="trackerLaunchCSS">
 #homeTrackerLaunch{display:block;width:100%;height:44px;border:1px solid #333;background:#111;color:#fff;border-radius:12px;font-size:12px}
-</style></head>
+</style><style id="settingsCalendarRemoval">#settingsHome #settingsCalendar{display:none!important}</style></head>
 <body>
 <section id="loginScreen">
   <div id="loginBox">
@@ -503,7 +503,7 @@ function render(){
 }
 function openTracker(){render();q("trackerPage").style.display="block"}
 function closeTracker(){q("trackerPage").style.display="none";showOnly("home")}
-q("homeTrackerBtn").onclick=openTracker;
+
 q("trackerBack").onclick=closeTracker;
 
 q("homeRoutineBtn").onclick=function(){q("homeChooser").style.display="none";q("routineChooser").style.display="flex"};
@@ -591,8 +591,7 @@ function renderHistory(){
  const h=q("teHistory");h.innerHTML="";
  Object.keys(load()).sort().reverse().slice(0,30).forEach(k=>{const s=stat(new Date(k+"T12:00:00")),r=document.createElement("div");r.className="teRow";r.innerHTML="<span>"+k+"</span><span>"+s.done+" / "+s.total+" · "+s.pct+"%</span>";r.onclick=()=>detail(new Date(k+"T12:00:00"));h.appendChild(r)})
 }
-const homeTracker=document.getElementById("homeTrackerBtn");
-if(homeTracker)homeTracker.onclick=()=>{render();q("trackerEnhanced").style.display="block"};
+q("trackerEnhanced").style.display="block"};
 q("teBack").onclick=()=>q("trackerEnhanced").style.display="none";
 q("teBackup").onclick=()=>{const blob=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:7,created:new Date().toISOString(),progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click();localStorage.setItem("morningRoutine.lastBackup",new Date().toLocaleDateString("en-GB"));setTimeout(render,100)};
 q("teRestore").onclick=()=>q("teFile").click();
@@ -741,10 +740,7 @@ syncSettings();
 })();
 </script>
 
-<button id="homeTrackerLaunch" type="button" aria-label="Tracker"
-style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9998;width:180px;height:44px;border:1px solid #333;background:#111;color:#fff;border-radius:12px;font-size:12px;">
-Tracker
-</button>
+
 
 <script id="trackerLaunchFix">
 (function(){
@@ -761,6 +757,35 @@ Tracker
   if(back){
     back.onclick=function(){overlay.style.display="none";};
   }
+})();
+</script>
+
+<script id="finalTrackerNavigationFix">
+(function(){
+  function openTracker(){
+    var overlay=document.getElementById("trackerEnhanced");
+    if(!overlay) overlay=document.getElementById("trackerPage");
+    if(!overlay) return;
+    overlay.style.display="block";
+    if(window.MorningRoutineEnhancedTracker &&
+       typeof window.MorningRoutineEnhancedTracker.render==="function"){
+      window.MorningRoutineEnhancedTracker.render();
+    } else if(window.MorningRoutineTracker &&
+              typeof window.MorningRoutineTracker.render==="function"){
+      window.MorningRoutineTracker.render();
+    }
+  }
+  function closeTracker(){
+    var overlay=document.getElementById("trackerEnhanced") ||
+                document.getElementById("trackerPage");
+    if(overlay) overlay.style.display="none";
+  }
+  document.addEventListener("click",function(e){
+    var t=e.target.closest ? e.target.closest("#homeTrackerBtn,#homeTrackerLaunch") : null;
+    if(t){ e.preventDefault(); e.stopPropagation(); openTracker(); return; }
+    var b=e.target.closest ? e.target.closest("#teBack,#ertBack,#trackerBack") : null;
+    if(b){ e.preventDefault(); closeTracker(); }
+  },true);
 })();
 </script>
 </body>
