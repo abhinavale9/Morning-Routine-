@@ -103,7 +103,7 @@ button{font:inherit}
 #trackerEnhanced .teCalDay.full .mark{background:#000}
 #trackerEnhanced .teDetail{border-top:1px solid #181818;margin-top:12px;padding-top:10px}
 #trackerEnhanced .teDetailRow{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;color:#aaa}
-#trackerEnhanced .teAction{width:100%;height:44px;background:#111;color:#fff;border:1px solid #333;border-radius:12px;margin-top:8px}#trackerEnhanced .teDetail .teDone{margin-left:10px}
+#trackerEnhanced .teAction{width:100%;height:44px;background:#111;color:#fff;border:1px solid #333;border-radius:12px;margin-top:8px}
 </style>
 
 <style id="loginStyles">
@@ -129,27 +129,21 @@ button{font:inherit}
 </section>
 
 
-
-
-<section id="settingsPage" style="display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:300000;overflow:auto;padding:22px;box-sizing:border-box">
-  <div style="max-width:520px;margin:auto">
-    <div class="trHead">
-      <button class="trBack" id="settingsBack" type="button">‹</button>
-      <div class="trTitle">SETTINGS</div>
-    </div>
-    <div class="trCard">
-      <div class="row"><span>Sound</span><button id="settingsSound" type="button">On</button></div>
-      <div class="row"><span>Voice</span><button id="settingsVoice" type="button">Off</button></div>
-      <div class="row"><span>Screen Awake</span><button id="settingsWake" type="button">On</button></div>
-    </div>
-    <div class="trCard">
-      <div class="trLabel">DATA</div>
-      <button class="trBtn" id="settingsBackup" type="button">Backup Data</button>
-      <button class="trBtn" id="settingsRestore" type="button">Restore Data</button>
-      <input id="settingsFile" type="file" accept=".json,application/json" style="display:none">
-    </div>
-  </div>
-</section>
+<section id="settingsPage" style="display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:1200;overflow:auto;padding:22px;box-sizing:border-box">
+<div style="max-width:520px;margin:auto">
+<div class="trHead"><button class="trBack" id="settingsBack">‹</button><div class="trTitle">SETTINGS</div></div>
+<div class="trCard">
+<div class="row"><span>Sound</span><button id="homeSoundSetting">On</button></div>
+<div class="row"><span>Voice</span><button id="homeVoiceSetting">Off</button></div>
+<div class="row"><span>Screen Awake</span><button id="homeWakeSetting">On</button></div>
+</div>
+<div class="trCard">
+<div class="trLabel">DATA</div>
+<button class="trBtn" id="settingsBackup">Backup Data</button>
+<button class="trBtn" id="settingsRestore">Restore Data</button>
+<input id="settingsFile" type="file" accept=".json,application/json" style="display:none">
+</div>
+</div></section>
 <section id="trackerEnhanced">
 <div class="teInner">
 <div class="teHead"><button class="teBack" id="teBack">‹</button><div class="teTitle">TRACKER</div></div>
@@ -158,7 +152,7 @@ button{font:inherit}
 <div class="teLabel">TODAY</div>
 <div class="teBig" id="teTodayPct">0%</div>
 <div class="teSub" id="teTodaySub">0 / 0 routines</div>
-<div class="teBar"><div class="teFill" id="teTodayFill"></div></div>
+<div class="teBar"><div class="teFill" id="teTodayFill"></div></div><div id="teManualList"></div>
 <div id="teTodayList"></div>
 </div>
 
@@ -215,10 +209,9 @@ button{font:inherit}
       <button class="option" id="homeTrackerBtn" type="button"><span class="option-name">Tracker</span><span class="option-time">→</span></button>
     </div>
     <div class="menu" style="gap:8px">
-      <button class="option" id="homeSettingsBtn" type="button">
-        <span class="option-name">Settings</span><span class="option-time">⚙</span>
-      </button>
-      <button id="homeInstallBtn" type="button">Install App</button>
+      <button class="option" id="homeSoundBtn" type="button"><span class="option-name">Sound</span><span class="option-time" id="homeSoundLabel">On</span></button>
+      <button class="option" id="homeVoiceBtn" type="button"><span class="option-name">Voice</span><span class="option-time" id="homeVoiceLabel">On</span></button>
+      <button class="option" id="homeWakeBtn" type="button"><span class="option-name">Screen Awake</span><span class="option-time" id="homeWakeLabel">On</span></button><button id="homeInstallBtn" type="button">Install App</button>
     </div>
   </div>
 
@@ -492,6 +485,9 @@ q("routineChooserBack").onclick=function(){q("routineChooser").style.display="no
 
 // Original timer engine expects .option buttons; it will bind to both sets,
 // so only the visible routine chooser should contain the clickable routine options.
+q("homeSoundBtn").onclick=()=>{const b=document.getElementById("sound");if(b)b.click();setTimeout(()=>q("homeSoundLabel").textContent=b?b.textContent:"On",0)};
+q("homeVoiceBtn").onclick=()=>{const b=document.getElementById("voice");if(b)b.click();setTimeout(()=>q("homeVoiceLabel").textContent=b?b.textContent:"Off",0)};
+q("homeWakeBtn").onclick=()=>{const b=document.getElementById("wake");if(b)b.click();setTimeout(()=>q("homeWakeLabel").textContent=b?b.textContent:"On",0)};
 
 q("trBackup").onclick=function(){let b=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:4,progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click()};
 q("trRestore").onclick=()=>q("trFile").click();
@@ -534,7 +530,6 @@ setInterval(()=>{let ex=document.getElementById("exercise"),ti=document.getEleme
 (function(){
 "use strict";
 const KEY="morningRoutine.progress.enhanced.v2";
-let calendarMonth=new Date();
 const q=id=>document.getElementById(id);
 const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){return{}}};
 const save=x=>localStorage.setItem(KEY,JSON.stringify(x));
@@ -553,36 +548,18 @@ function render(){
  ["M","T","W","T","F","S","S"].forEach((n,i)=>{const c=stat(add(mon,i));wd+=c.done;wt+=c.total;const a=document.createElement("div");a.className="teDay";a.textContent=n;const b=document.createElement("div");b.className="teDot"+(c.full?" ok":"");b.textContent=c.full?"✓":(c.done?c.pct+"%":"—");a.appendChild(b);g.appendChild(a)});
  const wp=wt?Math.round(wd/wt*100):0;q("teWeekPct").textContent=wp+"%";q("teWeekSub").textContent=wd+" / "+wt+" routines";q("teWeekFill").style.width=wp+"%";q("teStreak").textContent=streak()+" days";
  renderCalendar(now);renderHistory();
+ const lb=localStorage.getItem("morningRoutine.lastBackup");q("teBackupMeta").textContent=lb?"Last backup: "+lb:"No backup recorded";
 }
 function renderCalendar(now){
- const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),cal=q("teCalendar");
- if(!cal)return;
- cal.innerHTML="";
- q("teMonthTitle").textContent=calendarMonth.toLocaleString("en-US",{month:"long",year:"numeric"}).toUpperCase();
+ const y=now.getFullYear(),m=now.getMonth(),cal=q("teCalendar");cal.innerHTML="";q("teMonthTitle").textContent=now.toLocaleString("en-US",{month:"long",year:"numeric"}).toUpperCase();
  ["M","T","W","T","F","S","S"].forEach(n=>{const h=document.createElement("div");h.className="teCalHead";h.textContent=n;cal.appendChild(h)});
  const first=new Date(y,m,1),off=(first.getDay()+6)%7,last=new Date(y,m+1,0).getDate();
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
- const todayKey=key(new Date());
- for(let day=1;day<=last;day++){
-   const d=new Date(y,m,day),s=stat(d),c=document.createElement("button");
-   c.type="button";c.className="teCalDay"+(s.full?" full":(s.done?" partial":""))+(key(d)===todayKey?" today":"");
-   c.textContent=day;
-   if(s.done){const dot=document.createElement("span");dot.className="mark";c.appendChild(dot)}
-   c.onclick=()=>detail(d);
-   cal.appendChild(c);
- }
+ for(let day=1;day<=last;day++){const d=new Date(y,m,day),s=stat(d),c=document.createElement("button");c.type="button";c.className="teCalDay"+(s.full?" full":(s.done?" partial":""))+(key(d)===key(now)?" today":"");c.textContent=day;if(s.done){const dot=document.createElement("span");dot.className="mark";c.appendChild(dot)}c.onclick=()=>detail(d);cal.appendChild(c)}
 }
 function detail(d){
  const s=stat(d),x=q("teDetail");x.style.display="block";x.innerHTML='<div class="teLabel">'+d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+"</div>";
- s.p.forEach(n=>{
-   const r=document.createElement("div");r.className="teDetailRow";
-   const label=document.createElement("span");label.textContent=n;
-   const b=document.createElement("button");
-   b.className="teDone"+(s.x[n]?" ok":"");
-   b.textContent=s.x[n]?"✓ Complete":"Mark Complete";
-   if(!s.x[n]) b.onclick=()=>mark(n,d);
-   r.appendChild(label);r.appendChild(b);x.appendChild(r);
- })
+ s.p.forEach(n=>{const r=document.createElement("div");r.className="teDetailRow";r.innerHTML="<span>"+n+"</span><span>"+(s.x[n]?"✓ Complete":"○ Pending")+"</span>";x.appendChild(r)})
 }
 function renderHistory(){
  const h=q("teHistory");h.innerHTML="";
@@ -686,66 +663,43 @@ sync();
 })();
 </script>
 
-<script id="FIX_MONTH_NAV">
-(function(){
-function bind(){
- const p=document.getElementById("tePrevMonth"),n=document.getElementById("teNextMonth");
- if(p)p.onclick=function(e){e.preventDefault();e.stopPropagation();calendarMonth.setMonth(calendarMonth.getMonth()-1);window.MorningRoutineEnhancedTracker.renderCalendar()};
- if(n)n.onclick=function(e){e.preventDefault();e.stopPropagation();calendarMonth.setMonth(calendarMonth.getMonth()+1);window.MorningRoutineEnhancedTracker.renderCalendar()};
-}
-window.addEventListener("load",bind);
-})();
-</script>
-
-<script id="FIX_HOME_NAVIGATION">
+<script id="manualCompletionFix">
 (function(){
 "use strict";
-function hideAll(){
- ["home","timer","gym","calendar"].forEach(function(id){
-   var e=document.getElementById(id); if(e)e.style.display="none";
+const STORE_KEY="morningRoutine.progress.enhanced.v2";
+function getData(){try{return JSON.parse(localStorage.getItem(STORE_KEY)||"{}")}catch(e){return{}}}
+function saveData(x){localStorage.setItem(STORE_KEY,JSON.stringify(x))}
+function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function routineFor(d){
+ const n=d.getDay();
+ return n===0?["Warmup","HIIT","Meditation"]:(n===3||n===6?["Warmup","Walk","Core","Foam Rolling","Yoga","Meditation"]:["Warmup","Gym","Core","Foam Rolling","Yoga","Meditation"]);
+}
+function renderManual(){
+ const box=document.getElementById("teManualList"); if(!box)return;
+ const d=new Date(),k=dateKey(d),data=getData(),day=data[k]||{},list=routineFor(d);
+ box.innerHTML="";
+ list.forEach(function(name){
+   const row=document.createElement("div");row.className="teManualRow";
+   const label=document.createElement("span");label.textContent=name;
+   const b=document.createElement("button");b.type="button";
+   const done=!!day[name];
+   b.textContent=done?"✓ Complete":"Mark Complete";
+   b.className="teManualBtn"+(done?" done":"");
+   if(!done)b.onclick=function(){
+     const all=getData();all[k]=all[k]||{};all[k][name]="complete";saveData(all);renderManual();
+     if(window.MorningRoutineEnhancedTracker&&window.MorningRoutineEnhancedTracker.render)window.MorningRoutineEnhancedTracker.render();
+   };
+   row.appendChild(label);row.appendChild(b);box.appendChild(row);
  });
 }
-function openTracker(e){
- if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
- hideAll();
- var t=document.getElementById("trackerEnhanced");
- if(t){
-   t.style.display="block";
-   if(window.MorningRoutineEnhancedTracker && typeof window.MorningRoutineEnhancedTracker.render==="function"){
-     calendarMonth=new Date();
-     window.MorningRoutineEnhancedTracker.render();
-   }
- }
-}
-function openSettings(e){
- if(e){e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();}
- hideAll();
- var s=document.getElementById("settingsPage");
- if(s){s.style.display="block";syncSettingsUI();}
-}
-function syncSettingsUI(){
- var sound=localStorage.getItem("morningSound")!=="off";
- var voice=localStorage.getItem("morningVoice")==="on";
- var wake=localStorage.getItem("morningWake")!=="off";
- var a=document.getElementById("settingsSound"),b=document.getElementById("settingsVoice"),c=document.getElementById("settingsWake");
- if(a)a.textContent=sound?"On":"Off";if(b)b.textContent=voice?"On":"Off";if(c)c.textContent=wake?"On":"Off";
-}
+const css=document.createElement("style");
+css.textContent=".teManualRow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #181818;font-size:13px}.teManualBtn{border:1px solid #333;background:#111;color:#aaa;border-radius:9px;padding:7px 10px;font-size:10px}.teManualBtn.done{background:#fff;color:#000;border-color:#fff}";
+document.head.appendChild(css);
 document.addEventListener("click",function(e){
- var t=e.target.closest&&e.target.closest("#homeTrackerBtn");
- var s=e.target.closest&&e.target.closest("#homeSettingsBtn");
- if(t){openTracker(e);return;}
- if(s){openSettings(e);return;}
+ const t=e.target.closest&&e.target.closest("#homeTrackerBtn");
+ if(t)setTimeout(renderManual,50);
 },true);
-
-document.addEventListener("DOMContentLoaded",function(){
- var back=document.getElementById("settingsBack");
- if(back)back.onclick=function(){document.getElementById("settingsPage").style.display="none";document.getElementById("home").style.display="flex";};
- var ss=document.getElementById("settingsSound"),sv=document.getElementById("settingsVoice"),sw=document.getElementById("settingsWake");
- if(ss)ss.onclick=function(){var b=document.getElementById("sound");if(b)b.click();syncSettingsUI();};
- if(sv)sv.onclick=function(){var b=document.getElementById("voice");if(b)b.click();syncSettingsUI();};
- if(sw)sw.onclick=function(){var b=document.getElementById("wake");if(b)b.click();syncSettingsUI();};
- syncSettingsUI();
-});
+window.addEventListener("load",renderManual);
 })();
 </script>
 </body>
