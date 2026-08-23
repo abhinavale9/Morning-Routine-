@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#000">
 <title>Morning Routine</title>
 <style>
@@ -72,20 +71,75 @@ button{font:inherit}
 .trBtn{width:100%;height:46px;background:#111;color:#fff;border:1px solid #333;border-radius:13px;margin-top:10px}
 </style><style id="installPwaStyle">
 #homeInstallBtn{display:none;width:100%;height:40px;border:1px solid #333;background:#111;color:#fff;border-radius:12px;font-size:11px;margin-top:8px}
-</style></head>
-<body><section id="trackerPage">
+</style>
+<style id="tracker-enhanced">
+#trackerPage{font-family:inherit}
+.trSub{font-size:11px;color:#777;letter-spacing:1px;margin-top:4px}
+.trProgressBar{height:6px;background:#191919;border-radius:6px;overflow:hidden;margin-top:14px}
+.trProgressFill{height:100%;background:#fff;width:0;border-radius:6px}
+.trSectionTitle{font-size:11px;color:#777;letter-spacing:1.4px;margin-bottom:10px}
+.trCalendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;font-size:10px;text-align:center}
+.trCalHead{color:#666;padding:5px 0}
+.trCalDay{height:34px;border:1px solid transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.trCalDay.full{background:#fff;color:#000}
+.trCalDay.partial{border-color:#555}
+.trCalDay.today{box-shadow:inset 0 0 0 1px #fff}
+.trCalDay .mark{position:absolute;bottom:-2px;width:3px;height:3px;border-radius:50%;background:#777}
+.trCalDay.full .mark{background:#000}
+.trDetail{margin-top:14px;padding-top:10px;border-top:1px solid #181818}
+.trRoutineLine{display:flex;justify-content:space-between;padding:7px 0;font-size:12px;color:#aaa}
+.trMini{font-size:11px;color:#777}
+.trBackupMeta{font-size:11px;color:#666;margin-top:8px}
+</style>
+</head>
+<body>
+<section id="trackerPage">
 <div id="trackerInner">
 <div class="trHead"><button class="trBack" id="trackerBack">‹</button><div class="trTitle">TRACKER</div></div>
-<div class="trCard"><div class="trBig" id="trMonth">0%</div><div class="trLabel">MONTHLY COMPLIANCE</div></div>
-<div class="trCard"><div class="trBig" id="trStreak">0</div><div class="trLabel">CURRENT STREAK · DAYS</div></div>
-<div class="trCard"><div class="trBig" id="trWeek">0 / 7</div><div class="trLabel">THIS WEEK · DAYS COMPLIANT</div></div>
-<div class="trCard"><div class="trLabel">TODAY</div><div id="trToday"></div></div>
-<div class="trWeek" id="trWeekGrid"></div>
-<div class="trCard"><div class="trLabel">HISTORY</div><div id="trHistory"></div></div>
-<button class="trBtn" id="trBackup">Backup Data</button>
-<button class="trBtn" id="trRestore">Restore Data</button>
-<input id="trFile" type="file" accept=".json,application/json" style="display:none">
+
+<div class="trCard">
+  <div class="trLabel">TODAY</div>
+  <div class="trBig" id="trTodayPct">0%</div>
+  <div class="trSub" id="trTodaySummary">0 / 0 routines</div>
+  <div class="trProgressBar"><div class="trProgressFill" id="trTodayFill"></div></div>
+  <div id="trToday"></div>
+</div>
+
+<div class="trCard">
+  <div class="trLabel">THIS WEEK</div>
+  <div class="trBig" id="trWeekPct">0%</div>
+  <div class="trSub" id="trWeekSummary">0 / 0 routines</div>
+  <div class="trProgressBar"><div class="trProgressFill" id="trWeekFill"></div></div>
+  <div class="trWeek" id="trWeekGrid"></div>
+</div>
+
+<div class="trCard">
+  <div class="trLabel">STREAK</div>
+  <div class="trBig" id="trStreak">0 days</div>
+  <div class="trSub">Full scheduled days completed</div>
+</div>
+
+<div class="trCard">
+  <div class="trSectionTitle" id="trMonthTitle">AUGUST 2026</div>
+  <div class="trCalendar" id="trCalendar"></div>
+  <div class="trSub" style="margin-top:12px">● Complete &nbsp;&nbsp; ◐ Partial &nbsp;&nbsp; ○ None</div>
+  <div class="trDetail" id="trDetail" style="display:none"></div>
+</div>
+
+<div class="trCard">
+  <div class="trLabel">RECENT HISTORY</div>
+  <div id="trHistory"></div>
+</div>
+
+<div class="trCard">
+  <div class="trLabel">BACKUP</div>
+  <div class="trBackupMeta" id="trBackupMeta">Manual backup</div>
+  <button class="trBtn" id="trBackup">Backup Data</button>
+  <button class="trBtn" id="trRestore">Restore Data</button>
+  <input id="trFile" type="file" accept=".json,application/json" style="display:none">
+</div>
 </div></section>
+
 
 <section id="home" class="page home">
   <div id="homeChooser" style="height:100%;display:flex;flex-direction:column">
@@ -336,50 +390,87 @@ document.getElementById("wake").textContent=wake?"On":"Off";
 showOnly("home");
 })();
 </script>
+
 <script id="trackerLogic">
 (function(){
 "use strict";
-const TRKEY="morningRoutine.progress.v4";
+const TRKEY="morningRoutine.progress.enhanced";
 const q=id=>document.getElementById(id);
 const load=()=>{try{return JSON.parse(localStorage.getItem(TRKEY)||"{}")}catch(e){return{}}};
 const save=x=>localStorage.setItem(TRKEY,JSON.stringify(x));
 const key=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 const add=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return x};
 function plan(d){let n=d.getDay();return n===0?["Warmup","HIIT","Meditation"]:(n===3||n===6?["Warmup","Walk","Core","Foam Rolling","Yoga","Meditation"]:["Warmup","Gym","Core","Foam Rolling","Yoga","Meditation"])}
-function stat(d){let p=plan(d),x=load()[key(d)]||{},done=p.filter(n=>x[n]).length;return{p,x,done,total:p.length,pct:Math.round(done/p.length*100),full:done===p.length}}
-function mark(n){let x=load(),k=key(new Date());x[k]=x[k]||{};x[k][n]=true;save(x);render()}
+function stat(d){let p=plan(d),x=load()[key(d)]||{},done=p.filter(n=>x[n]==="complete"||x[n]===true).length,skip=p.filter(n=>x[n]==="skipped").length;return{p,x,done,skip,total:p.length,pct:Math.round(done/p.length*100),full:done===p.length}}
+function mark(n,state="complete",date=new Date()){let x=load(),k=key(date);x[k]=x[k]||{};x[k][n]=state;save(x);render()}
 function streak(){let d=new Date(),s=0;if(!stat(d).full)d=add(d,-1);while(stat(d).full){s++;d=add(d,-1)}return s}
+function routineRow(name,status,date){
+ const r=document.createElement("div");r.className="trTodayRow";
+ const label=document.createElement("span");label.textContent=name;
+ const b=document.createElement("button");b.className="trDone"+(status==="complete"||status===true?" ok":"");b.textContent=(status==="complete"||status===true)?"✓ Complete":"Mark Complete";
+ b.onclick=()=>{if(status==="complete"||status===true){return}mark(name,"complete",date)};
+ r.appendChild(label);r.appendChild(b);return r;
+}
 function render(){
- let now=new Date(),done=0,total=0;
- for(let i=1;i<=now.getDate();i++){let c=stat(new Date(now.getFullYear(),now.getMonth(),i));done+=c.done;total+=c.total}
- q("trMonth").textContent=(total?Math.round(done/total*100):0)+"%";q("trStreak").textContent=streak();
- let mon=add(now,-((now.getDay()+6)%7)),full=0,g=q("trWeekGrid");g.innerHTML="";
- ["M","T","W","T","F","S","S"].forEach((n,i)=>{let c=stat(add(mon,i));if(c.full)full++;let a=document.createElement("div");a.className="trDay";a.textContent=n;let b=document.createElement("div");b.className="trDot"+(c.full?" ok":"");b.textContent=c.full?"✓":(c.done?c.pct+"%":"—");a.appendChild(b);g.appendChild(a)});
- q("trWeek").textContent=full+" / 7";
- let c=stat(now),tl=q("trToday");tl.innerHTML="";
- c.p.forEach(n=>{let r=document.createElement("div");r.className="trTodayRow";r.innerHTML="<span>"+n+"</span>";let b=document.createElement("button");b.className="trDone"+(c.x[n]?" ok":"");b.textContent=c.x[n]?"✓ Complete":"Mark Complete";b.onclick=()=>mark(n);r.appendChild(b);tl.appendChild(r)});
- let h=q("trHistory");h.innerHTML="";
- Object.keys(load()).sort().reverse().slice(0,30).forEach(k=>{let c=stat(new Date(k+"T12:00:00")),r=document.createElement("div");r.className="trHistRow";r.innerHTML="<span>"+k+"</span><span>"+c.done+" / "+c.total+" · "+c.pct+"%</span>";h.appendChild(r)})
+ const now=new Date(),c=stat(now);
+ q("trTodayPct").textContent=c.pct+"%";
+ q("trTodaySummary").textContent=c.done+" / "+c.total+" routines";
+ q("trTodayFill").style.width=c.pct+"%";
+ const tl=q("trToday");tl.innerHTML="";
+ c.p.forEach(n=>tl.appendChild(routineRow(n,c.x[n],now)));
+
+ const monday=add(now,-((now.getDay()+6)%7));let wd=0,wt=0,full=0,g=q("trWeekGrid");g.innerHTML="";
+ ["M","T","W","T","F","S","S"].forEach((n,i)=>{
+   let d=add(monday,i),s=stat(d);wd+=s.done;wt+=s.total;if(s.full)full++;
+   let a=document.createElement("div");a.className="trDay";a.textContent=n;
+   let b=document.createElement("div");b.className="trDot"+(s.full?" ok":"");b.textContent=s.full?"✓":(s.done?s.pct+"%":"—");a.appendChild(b);g.appendChild(a)
+ });
+ q("trWeekPct").textContent=(wt?Math.round(wd/wt*100):0)+"%";
+ q("trWeekSummary").textContent=wd+" / "+wt+" routines";
+ q("trWeekFill").style.width=(wt?Math.round(wd/wt*100):0)+"%";
+ q("trStreak").textContent=streak()+" days";
+
+ renderCalendar(now);
+ renderHistory();
+ const b=localStorage.getItem("morningRoutine.lastBackup");
+ q("trBackupMeta").textContent=b?"Last backup: "+b:"No backup recorded yet";
+}
+function renderCalendar(now){
+ const cal=q("trCalendar"),year=now.getFullYear(),month=now.getMonth();
+ q("trMonthTitle").textContent=now.toLocaleString("en-US",{month:"long",year:"numeric"}).toUpperCase();
+ cal.innerHTML="";
+ ["M","T","W","T","F","S","S"].forEach(x=>{let h=document.createElement("div");h.className="trCalHead";h.textContent=x;cal.appendChild(h)});
+ let first=new Date(year,month,1),offset=(first.getDay()+6)%7,last=new Date(year,month+1,0).getDate();
+ for(let i=0;i<offset;i++)cal.appendChild(document.createElement("div"));
+ for(let day=1;day<=last;day++){
+   let d=new Date(year,month,day),s=stat(d),cell=document.createElement("button");cell.type="button";cell.className="trCalDay"+(s.full?" full":(s.done?" partial":""))+(key(d)===key(now)?" today":"");cell.textContent=day;
+   if(s.done){let dot=document.createElement("span");dot.className="mark";cell.appendChild(dot)}
+   cell.onclick=()=>showDate(d);cal.appendChild(cell)
+ }
+}
+function showDate(d){
+ const s=stat(d),detail=q("trDetail");detail.style.display="block";
+ detail.innerHTML='<div class="trSectionTitle">'+d.toLocaleDateString("en-US",{weekday:"short",day:"numeric",month:"short",year:"numeric"}).toUpperCase()+'</div>';
+ s.p.forEach(n=>{let r=document.createElement("div");r.className="trRoutineLine";let v=s.x[n];r.innerHTML="<span>"+n+"</span><span>"+(v==="complete"||v===true?"✓ Complete":v==="skipped"?"— Skipped":"○ Pending")+"</span>";detail.appendChild(r)})
+}
+function renderHistory(){
+ const h=q("trHistory");h.innerHTML="";Object.keys(load()).sort().reverse().slice(0,30).forEach(k=>{let s=stat(new Date(k+"T12:00:00")),r=document.createElement("div");r.className="trHistRow";r.innerHTML="<span>"+k+"</span><span>"+s.done+" / "+s.total+" · "+s.pct+"%</span>";r.onclick=()=>showDate(new Date(k+"T12:00:00"));h.appendChild(r)})
 }
 function openTracker(){render();q("trackerPage").style.display="block"}
-function closeTracker(){q("trackerPage").style.display="none";showOnly("home")}
+function closeTracker(){q("trackerPage").style.display="none"}
 q("homeTrackerBtn").onclick=openTracker;
 q("trackerBack").onclick=closeTracker;
 
-q("homeRoutineBtn").onclick=function(){q("homeChooser").style.display="none";q("routineChooser").style.display="flex"};
-q("routineChooserBack").onclick=function(){q("routineChooser").style.display="none";q("homeChooser").style.display="flex";showOnly("home")};
-
-// Original timer engine expects .option buttons; it will bind to both sets,
-// so only the visible routine chooser should contain the clickable routine options.
-q("homeSoundBtn").onclick=()=>{const b=document.getElementById("sound");if(b)b.click();setTimeout(()=>q("homeSoundLabel").textContent=b?b.textContent:"On",0)};
-q("homeVoiceBtn").onclick=()=>{const b=document.getElementById("voice");if(b)b.click();setTimeout(()=>q("homeVoiceLabel").textContent=b?b.textContent:"Off",0)};
-q("homeWakeBtn").onclick=()=>{const b=document.getElementById("wake");if(b)b.click();setTimeout(()=>q("homeWakeLabel").textContent=b?b.textContent:"On",0)};
-
-q("trBackup").onclick=function(){let b=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:4,progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click()};
+q("trBackup").onclick=function(){
+ const payload={format:"MorningRoutineBackup",version:5,created:new Date().toISOString(),progress:load()};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click();
+ localStorage.setItem("morningRoutine.lastBackup",new Date().toLocaleDateString("en-GB"));setTimeout(render,100);
+};
 q("trRestore").onclick=()=>q("trFile").click();
 q("trFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.progress)throw 0;save(x.progress);render();alert("Backup restored successfully.")}catch(z){alert("Invalid backup file.")}};r.readAsText(f);e.target.value=""};
 
-// Automatic completion: observe the existing completion screen only.
+// Automatic completion observer; does not replace any timer functions.
 let last="";
 setInterval(()=>{let ex=document.getElementById("exercise"),ti=document.getElementById("timerTitle");if(ex&&ti&&ex.textContent.trim()==="GREAT JOB"){let n=ti.textContent.trim();if(n&&n!==last){mark(n.charAt(0).toUpperCase()+n.slice(1));last=n}}else if(ex&&ex.textContent.trim()!=="GREAT JOB")last=""},500);
 })();
