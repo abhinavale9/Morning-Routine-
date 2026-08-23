@@ -69,6 +69,8 @@ button{font:inherit}
 .trDone{border:1px solid #333;background:#111;color:#aaa;border-radius:10px;padding:7px 10px;font-size:11px}.trDone.ok{background:#fff;color:#000;border-color:#fff}
 .trWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:20px 0}.trDay{text-align:center;color:#777;font-size:10px}.trDot{width:34px;height:34px;border:1px solid #292929;border-radius:50%;margin:6px auto 0;display:flex;align-items:center;justify-content:center;font-size:10px}.trDot.ok{background:#fff;color:#000}
 .trBtn{width:100%;height:46px;background:#111;color:#fff;border:1px solid #333;border-radius:13px;margin-top:10px}
+</style><style id="installPwaStyle">
+#homeInstallBtn{display:none;width:100%;height:40px;border:1px solid #333;background:#111;color:#fff;border-radius:12px;font-size:11px;margin-top:8px}
 </style></head>
 <body><section id="trackerPage">
 <div id="trackerInner">
@@ -94,7 +96,7 @@ button{font:inherit}
     <div class="menu" style="gap:8px">
       <button class="option" id="homeSoundBtn" type="button"><span class="option-name">Sound</span><span class="option-time" id="homeSoundLabel">On</span></button>
       <button class="option" id="homeVoiceBtn" type="button"><span class="option-name">Voice</span><span class="option-time" id="homeVoiceLabel">On</span></button>
-      <button class="option" id="homeWakeBtn" type="button"><span class="option-name">Screen Awake</span><span class="option-time" id="homeWakeLabel">On</span></button>
+      <button class="option" id="homeWakeBtn" type="button"><span class="option-name">Screen Awake</span><span class="option-time" id="homeWakeLabel">On</span></button><button id="homeInstallBtn" type="button">Install App</button>
     </div>
   </div>
 
@@ -368,9 +370,9 @@ q("routineChooserBack").onclick=function(){q("routineChooser").style.display="no
 
 // Original timer engine expects .option buttons; it will bind to both sets,
 // so only the visible routine chooser should contain the clickable routine options.
-q("homeSoundBtn").onclick=()=>{if(typeof setSound==="function")setSound();q("homeSoundLabel").textContent=(typeof sound!=="undefined"&&sound)?"On":"Off"};
-q("homeVoiceBtn").onclick=()=>{if(typeof setVoice==="function")setVoice();q("homeVoiceLabel").textContent=(typeof voice!=="undefined"&&voice)?"On":"Off"};
-q("homeWakeBtn").onclick=()=>{if(typeof setWake==="function")setWake();q("homeWakeLabel").textContent=(typeof wake!=="undefined"&&wake)?"On":"Off"};
+q("homeSoundBtn").onclick=()=>{const b=document.getElementById("sound");if(b)b.click();setTimeout(()=>q("homeSoundLabel").textContent=b?b.textContent:"On",0)};
+q("homeVoiceBtn").onclick=()=>{const b=document.getElementById("voice");if(b)b.click();setTimeout(()=>q("homeVoiceLabel").textContent=b?b.textContent:"Off",0)};
+q("homeWakeBtn").onclick=()=>{const b=document.getElementById("wake");if(b)b.click();setTimeout(()=>q("homeWakeLabel").textContent=b?b.textContent:"On",0)};
 
 q("trBackup").onclick=function(){let b=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:4,progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click()};
 q("trRestore").onclick=()=>q("trFile").click();
@@ -380,5 +382,33 @@ q("trFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileRead
 let last="";
 setInterval(()=>{let ex=document.getElementById("exercise"),ti=document.getElementById("timerTitle");if(ex&&ti&&ex.textContent.trim()==="GREAT JOB"){let n=ti.textContent.trim();if(n&&n!==last){mark(n.charAt(0).toUpperCase()+n.slice(1));last=n}}else if(ex&&ex.textContent.trim()!=="GREAT JOB")last=""},500);
 })();
-</script><script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=9",{updateViaCache:"none"}).catch(()=>{}));</script></body>
+</script><script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=10",{updateViaCache:"none"}).catch(()=>{}));</script>
+<script id="pwaInstallLogic">
+(function(){
+  let deferredPrompt=null;
+  const btn=document.getElementById("homeInstallBtn");
+  window.addEventListener("beforeinstallprompt",function(e){
+    e.preventDefault();
+    deferredPrompt=e;
+    if(btn)btn.style.display="block";
+  });
+  if(btn){
+    btn.addEventListener("click",async function(){
+      if(!deferredPrompt){
+        alert("Chrome has not made the app install prompt available yet. Stay on this page for a little while, then try again.");
+        return;
+      }
+      deferredPrompt.prompt();
+      try{await deferredPrompt.userChoice}catch(e){}
+      deferredPrompt=null;
+      btn.style.display="none";
+    });
+  }
+  window.addEventListener("appinstalled",function(){
+    deferredPrompt=null;
+    if(btn)btn.style.display="none";
+  });
+})();
+</script>
+</body>
 </html>

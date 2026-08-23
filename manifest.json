@@ -1,20 +1,18 @@
 {
   "id": "./",
   "name": "Morning Routine",
-  "short_name": "Morning Routine",
-  "description": "Offline morning workout timers, routines and daily progress tracking.",
+  "short_name": "Morning",
+  "description": "Morning exercise timers and daily progress tracker.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
-  "lang": "en",
-  "categories": [
-    "health",
-    "lifestyle",
-    "productivity"
-  ],
   "prefer_related_applications": false,
   "icons": [
     {

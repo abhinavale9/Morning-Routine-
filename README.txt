@@ -1,19 +1,15 @@
-Morning Routine — Installable PWA v9
+Morning Routine — Fixed PWA v10
 
-This package preserves the currently working Home / Routine / Tracker build.
+Preserves the currently working Home / Routine / Tracker / timer functionality.
 
-PWA installation improvements:
-- Real 192x192 and 512x512 PNG icons
-- Explicit manifest id, start_url, scope, standalone display
-- PWA metadata and apple-touch-icon
-- Fresh service-worker cache version
+Fixes:
+- Home Sound/Voice/Screen Awake buttons now operate the original controls directly.
+- Adds an in-app Install App button when Chrome exposes the PWA install prompt.
+- Manifest has explicit id, start_url, scope, standalone display, 192/512 PNG icons.
+- Service worker has navigation fallback and fresh cache version.
 
-Deploy all files in this folder to the ROOT of the GitHub Pages site.
-
-After deployment, test the HTTPS GitHub Pages URL in normal Chrome. Remove any
-old Morning Routine shortcut/app first. Then Chrome should offer "Install app"
-when the site is recognized as installable.
-
-If Chrome still only offers "Add to Home screen", open Chrome DevTools
-Application > Manifest and check the Installability section for the exact
-reason Chrome is not offering installation.
+Deploy all files to the root of GitHub Pages.
+After deployment, remove the old Morning Routine shortcut/app and open the HTTPS
+site in normal Chrome. Tap the page once and leave it open for ~30 seconds;
+Chrome's install prompt is subject to browser engagement criteria. The Install App
+button will appear when Chrome exposes beforeinstallprompt.
