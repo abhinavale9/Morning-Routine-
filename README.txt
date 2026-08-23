@@ -1,1 +1,1 @@
-Home-first build. Replace index.html, manifest.json, sw.js, icon-192.svg and icon-512.svg in GitHub Pages. Login removed. Home is the initial screen; Routine opens the original timer list; Tracker shows completion/history; settings are on Home.
+FINAL HOME-FIRST BUILD. Replace index.html, manifest.json, sw.js, icon-192.svg, icon-512.svg. The existing timer engine is preserved. The original home section is replaced directly so the home screen is controlled by the existing showOnly('home') logic. Login removed. Test in browser before reinstalling PWA.
