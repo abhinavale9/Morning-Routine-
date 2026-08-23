@@ -597,12 +597,11 @@ button.addEventListener("click",login);
 pass.addEventListener("keydown",e=>{if(e.key==="Enter")login()});
 user.addEventListener("keydown",e=>{if(e.key==="Enter")pass.focus()});
 if(logout)logout.addEventListener("click",()=>{
+  localStorage.removeItem(LSKEY);
   const panel=document.getElementById("panel");
   if(panel)panel.classList.remove("open");
   showLogin();
 });
-
-// Always require login on a fresh app/page load.
 showLogin();
 })();
 </script>
