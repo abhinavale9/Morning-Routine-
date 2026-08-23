@@ -380,5 +380,5 @@ q("trFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileRead
 let last="";
 setInterval(()=>{let ex=document.getElementById("exercise"),ti=document.getElementById("timerTitle");if(ex&&ti&&ex.textContent.trim()==="GREAT JOB"){let n=ti.textContent.trim();if(n&&n!==last){mark(n.charAt(0).toUpperCase()+n.slice(1));last=n}}else if(ex&&ex.textContent.trim()!=="GREAT JOB")last=""},500);
 })();
-</script><script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=8",{updateViaCache:"none"}).catch(()=>{}));</script></body>
+</script><script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=9",{updateViaCache:"none"}).catch(()=>{}));</script></body>
 </html>
