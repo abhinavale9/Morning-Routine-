@@ -1,14 +1,1 @@
-const VERSION="morning-routine-stable-5";
-const CACHE=VERSION;
-const ASSETS=["./","./index.html","./manifest.json","./icon-192.svg","./icon-512.svg"];
-self.addEventListener("install",event=>{
-  event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
-  self.skipWaiting();
-});
-self.addEventListener("activate",event=>{
-  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
-});
-self.addEventListener("fetch",event=>{
-  if(event.request.method!=="GET")return;
-  event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request)));
-});
+const C="morning-routine-tracker-6";const A=["./","./index.html","./manifest.json","./icon-192.svg","./icon-512.svg"];self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});self.addEventListener("fetch",e=>{if(e.request.method==="GET")e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request)))})
