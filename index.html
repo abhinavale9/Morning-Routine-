@@ -116,6 +116,28 @@ button{font:inherit}
 #loginError{height:22px;text-align:center;color:#888;font-size:12px;margin-top:12px}
 #logoutButton{width:100%;height:42px;border:0;border-radius:12px;background:#292929;color:#fff;margin-top:8px}
 </style>
+
+<style id="nextChangesCSS">
+#settingsHome{display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:2000;padding:22px;overflow:auto}
+#settingsHome .shInner{max-width:520px;margin:auto}
+.shHead{height:42px;display:flex;align-items:center;margin-bottom:20px}
+.shBack{border:0;background:transparent;color:#777;font-size:32px;width:42px}
+.shTitle{font-size:13px;letter-spacing:2px}
+.shRow{display:flex;align-items:center;justify-content:space-between;padding:15px 2px;border-bottom:1px solid #181818}
+.shRow span{font-size:14px}.shRow button{height:38px;min-width:64px;border:0;border-radius:12px;background:#292929;color:#fff}
+.shAction{width:100%;height:44px;background:#111;color:#fff;border:1px solid #333;border-radius:12px;margin-top:9px}
+#allMonths{display:none;margin-top:15px}
+.monthBlock{background:#0c0c0c;border:1px solid #222;border-radius:16px;padding:15px;margin:10px 0}
+.monthName{font-size:11px;letter-spacing:1.4px;color:#777;margin-bottom:10px}
+.monthCal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.monthCalHead{font-size:8px;color:#555;padding:4px}
+.monthDay{height:28px;border-radius:50%;border:1px solid transparent;background:transparent;color:#aaa;font-size:10px}
+.monthDay.partial{border-color:#555}.monthDay.full{background:#fff;color:#000}
+.monthDay.today{box-shadow:inset 0 0 0 1px #fff}
+.monthDay .dot{display:block;width:3px;height:3px;border-radius:50%;background:#777;margin:1px auto 0}
+.monthDay.full .dot{background:#000}
+.pauseIcon{display:inline-block;font-size:20px;line-height:1}
+</style>
 </head>
 <body>
 <section id="loginScreen">
@@ -128,6 +150,32 @@ button{font:inherit}
   </div>
 </section>
 
+
+<section id="settingsHome">
+<div class="shInner">
+  <div class="shHead"><button class="shBack" id="settingsHomeBack">‹</button><div class="shTitle">SETTINGS</div></div>
+  <div class="trCard">
+    <div class="shRow"><span>Sound</span><button id="settingsSoundBtn">On</button></div>
+    <div class="shRow"><span>Voice</span><button id="settingsVoiceBtn">Off</button></div>
+    <div class="shRow"><span>Screen Awake</span><button id="settingsWakeBtn">On</button></div>
+  </div>
+  <div class="trCard">
+    <div class="trLabel">DATA</div>
+    <button class="shAction" id="settingsBackup">Backup Data</button>
+    <button class="shAction" id="settingsRestore">Restore Data</button>
+    <input id="settingsFile" type="file" accept=".json,application/json" style="display:none">
+  </div>
+  <div class="trCard">
+    <div class="trLabel">CALENDAR</div>
+    <button class="shAction" id="settingsCalendar">View All Months</button>
+  </div>
+  <div class="trCard">
+    <div class="trLabel">ACCOUNT</div>
+    <button class="shAction" id="settingsLogout">Logout</button>
+  </div>
+  <div id="allMonths"></div>
+</div>
+</section>
 <section id="trackerEnhanced">
 <div class="teInner">
 <div class="teHead"><button class="teBack" id="teBack">‹</button><div class="teTitle">TRACKER</div></div>
@@ -156,6 +204,7 @@ button{font:inherit}
 
 <div class="teCard">
 <div class="teLabel" id="teMonthTitle">MONTH</div>
+<button class="teAction" id="teAllMonthsBtn" type="button">View All Months</button>
 <div class="teCal" id="teCalendar"></div>
 <div class="teSub" style="margin-top:10px">● Complete &nbsp; ◐ Partial &nbsp; ○ None</div>
 <div class="teDetail" id="teDetail" style="display:none"></div>
@@ -166,13 +215,7 @@ button{font:inherit}
 <div id="teHistory"></div>
 </div>
 
-<div class="teCard">
-<div class="teLabel">BACKUP</div>
-<div class="teSub" id="teBackupMeta">No backup recorded</div>
-<button class="teAction" id="teBackup">Backup Data</button>
-<button class="teAction" id="teRestore">Restore Data</button>
-<input id="teFile" type="file" accept=".json,application/json" style="display:none">
-</div>
+
 </div>
 </section>
 <section id="trackerPage">
@@ -196,11 +239,7 @@ button{font:inherit}
       <button class="option" id="homeRoutineBtn" type="button"><span class="option-name">Routine</span><span class="option-time">→</span></button>
       <button class="option" id="homeTrackerBtn" type="button"><span class="option-name">Tracker</span><span class="option-time">→</span></button>
     </div>
-    <div class="menu" style="gap:8px">
-      <button class="option" id="homeSoundBtn" type="button"><span class="option-name">Sound</span><span class="option-time" id="homeSoundLabel">On</span></button>
-      <button class="option" id="homeVoiceBtn" type="button"><span class="option-name">Voice</span><span class="option-time" id="homeVoiceLabel">On</span></button>
-      <button class="option" id="homeWakeBtn" type="button"><span class="option-name">Screen Awake</span><span class="option-time" id="homeWakeLabel">On</span></button><button id="homeInstallBtn" type="button">Install App</button>
-    </div>
+    <div class="menu" style="gap:8px"><button class="option" id="homeSettingsBtn" type="button"><span class="option-name">Settings</span><span class="option-time">⚙</span></button></div>
   </div>
 
   <div id="routineChooser" style="display:none;height:100%;flex-direction:column">
@@ -367,7 +406,7 @@ function total(){return steps.filter(x=>!x[2]).length}
 function render(){
  const x=steps[index];
  counter.textContent=String(num()).padStart(2,"0")+" / "+String(total()).padStart(2,"0");
- exercise.textContent=x[2]?"REST":x[0];
+ exercise.textContent=x[2]?"REST":x[0];exercise.style.color="#fff";
  side.textContent=x[2]?"":(x[3]||"");
  seconds.textContent=String(left).padStart(2,"0");
  bar.style.width=((1-left/x[1])*100)+"%";
@@ -399,7 +438,7 @@ async function keepWake(){if(!wake||!("wakeLock"in navigator))return;try{wakeloc
 function releaseWake(){if(wakelock){wakelock.release().catch(()=>{});wakelock=null}}
 function start(){
  if(countdown)return;countdown=true;const c=document.getElementById("countdown");c.style.display="flex";let n=3;c.textContent=n;
- const t=setInterval(()=>{n--;if(n>0)c.textContent=n;else{clearInterval(t);c.style.display="none";countdown=false;running=true;main.textContent="⏸ Pause";speak(steps[index][2]?"Rest":steps[index][0]);keepWake();interval=setInterval(tick,1000)}},1000);
+ const t=setInterval(()=>{n--;if(n>0)c.textContent=n;else{clearInterval(t);c.style.display="none";countdown=false;running=true;main.textContent="Ⅱ";speak(steps[index][2]?"Rest":steps[index][0]);keepWake();interval=setInterval(tick,1000)}},1000);
 }
 function toggle(){
  if(running){stop();main.textContent="▶ Resume"}
@@ -603,6 +642,103 @@ if(logout)logout.addEventListener("click",()=>{
   showLogin();
 });
 showLogin();
+})();
+</script>
+
+<script id="nextChangesLogic">
+(function(){
+"use strict";
+const qs=id=>document.getElementById(id);
+const openSettings=()=>{qs("settingsHome").style.display="block";syncSettings()};
+const closeSettings=()=>qs("settingsHome").style.display="none";
+qs("homeSettingsBtn").onclick=openSettings;
+qs("settingsHomeBack").onclick=closeSettings;
+
+function syncSettings(){
+  const s=localStorage.getItem("morningSound")!=="off";
+  const v=localStorage.getItem("morningVoice")==="on";
+  const w=localStorage.getItem("morningWake")!=="off";
+  qs("settingsSoundBtn").textContent=s?"On":"Off";
+  qs("settingsVoiceBtn").textContent=v?"On":"Off";
+  qs("settingsWakeBtn").textContent=w?"On":"Off";
+}
+qs("settingsSoundBtn").onclick=()=>{let x=localStorage.getItem("morningSound")!=="off";localStorage.setItem("morningSound",x?"off":"on");syncSettings();document.getElementById("sound").textContent=x?"Off":"On";document.getElementById("homeSoundLabel").textContent=x?"Off":"On"};
+qs("settingsVoiceBtn").onclick=()=>{let x=localStorage.getItem("morningVoice")==="on";localStorage.setItem("morningVoice",x?"off":"on");syncSettings();document.getElementById("voice").textContent=x?"Off":"On";document.getElementById("homeVoiceLabel").textContent=x?"Off":"On"};
+qs("settingsWakeBtn").onclick=()=>{let x=localStorage.getItem("morningWake")!=="off";localStorage.setItem("morningWake",x?"off":"on");syncSettings();document.getElementById("wake").textContent=x?"Off":"On";document.getElementById("homeWakeLabel").textContent=x?"Off":"On"};
+
+function progress(){
+ try{return JSON.parse(localStorage.getItem("morningRoutine.progress.enhanced.v2")||"{}")}catch(e){return{}}
+}
+function dayStat(d){
+ const n=d.getDay(), p=n===0?["Warmup","HIIT","Meditation"]:(n===3||n===6?["Warmup","Walk","Core","Foam Rolling","Yoga","Meditation"]:["Warmup","Gym","Core","Foam Rolling","Yoga","Meditation"]);
+ const x=progress()[d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")]||{};
+ const done=p.filter(k=>x[k]).length;return{done,total:p.length,full:done===p.length};
+}
+function renderAllMonths(){
+ const root=qs("allMonths");root.innerHTML="";
+ const now=new Date(),y=now.getFullYear();
+ for(let m=0;m<12;m++){
+   const card=document.createElement("div");card.className="monthBlock";
+   const title=document.createElement("div");title.className="monthName";title.textContent=new Date(y,m,1).toLocaleString("en-US",{month:"long",year:"numeric"}).toUpperCase();card.appendChild(title);
+   const cal=document.createElement("div");cal.className="monthCal";
+   ["M","T","W","T","F","S","S"].forEach(x=>{let h=document.createElement("div");h.className="monthCalHead";h.textContent=x;cal.appendChild(h)});
+   const first=new Date(y,m,1),off=(first.getDay()+6)%7,last=new Date(y,m+1,0).getDate();
+   for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
+   for(let d=1;d<=last;d++){
+     const dt=new Date(y,m,d),s=dayStat(dt),b=document.createElement("div");
+     b.className="monthDay"+(s.full?" full":(s.done?" partial":""))+(dt.toDateString()===now.toDateString()?" today":"");
+     b.textContent=d;
+     if(s.done){let dot=document.createElement("span");dot.className="dot";b.appendChild(dot)}
+     cal.appendChild(b);
+   }
+   card.appendChild(cal);root.appendChild(card);
+ }
+ root.style.display=root.style.display==="block"?"none":"block";
+}
+qs("settingsCalendar").onclick=renderAllMonths;
+qs("teAllMonthsBtn").onclick=()=>{openSettings();renderAllMonths()};
+
+function backup(){
+ const payload={format:"MorningRoutineBackup",version:8,created:new Date().toISOString(),
+ progress:progress(),settings:{
+  sound:localStorage.getItem("morningSound")||"on",
+  voice:localStorage.getItem("morningVoice")||"off",
+  wake:localStorage.getItem("morningWake")||"on"
+ }};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="MorningRoutine_Backup_"+new Date().toISOString().slice(0,10)+".json";a.click();
+ localStorage.setItem("morningRoutine.lastBackup",new Date().toLocaleDateString("en-GB"));
+}
+qs("settingsBackup").onclick=backup;
+qs("settingsRestore").onclick=()=>qs("settingsFile").click();
+qs("settingsFile").onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{
+  try{
+   const x=JSON.parse(r.result);
+   if(!x.progress)throw 0;
+   localStorage.setItem("morningRoutine.progress.enhanced.v2",JSON.stringify(x.progress));
+   if(x.settings){
+    if(x.settings.sound) localStorage.setItem("morningSound",x.settings.sound);
+    if(x.settings.voice) localStorage.setItem("morningVoice",x.settings.voice);
+    if(x.settings.wake) localStorage.setItem("morningWake",x.settings.wake);
+   }
+   syncSettings();
+   document.getElementById("sound").textContent=localStorage.getItem("morningSound")!=="off"?"On":"Off";
+   document.getElementById("voice").textContent=localStorage.getItem("morningVoice")==="on"?"On":"Off";
+   document.getElementById("wake").textContent=localStorage.getItem("morningWake")!=="off"?"On":"Off";
+   document.getElementById("homeSoundLabel").textContent=document.getElementById("sound").textContent;
+   document.getElementById("homeVoiceLabel").textContent=document.getElementById("voice").textContent;
+   document.getElementById("homeWakeLabel").textContent=document.getElementById("wake").textContent;
+   alert("Backup restored successfully.");
+  }catch(e){alert("Invalid backup file.")}
+ };
+ r.readAsText(f);e.target.value="";
+};
+qs("settingsLogout").onclick=()=>{localStorage.removeItem("morningRoutine.authenticated");location.reload()};
+
+syncSettings();
 })();
 </script>
 </body>
