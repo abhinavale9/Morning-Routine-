@@ -1,15 +1,23 @@
-Morning Routine PWA v3
+Morning Routine — Stable PWA v5
 
-Replace the existing GitHub Pages files with these five files:
-- index.html
-- sw.js
-- manifest.json
-- icon-192.svg
-- icon-512.svg
+This build starts from the original known-good timer HTML. No login is included.
+The timer engine is not overridden.
 
-This version uses a versioned service-worker cache (v3), updateViaCache:none,
-and network-first fetching for index.html so new deployments are picked up.
+Features added separately:
+- Progress tracker
+- Daily/weekly/monthly compliance
+- Streak
+- Backup/restore JSON
+- PWA manifest
+- Offline service worker
 
-After committing, wait for GitHub Pages to deploy. If an installed PWA still
-shows the old version, remove the old installed app/site data once and
-reinstall it.
+Deploy all five files to the root of GitHub Pages:
+index.html
+manifest.json
+sw.js
+icon-192.svg
+icon-512.svg
+
+Important: after replacing files, test the normal GitHub Pages URL in a new
+browser tab before opening any installed PWA. The service worker uses a new
+versioned cache (stable-5).
