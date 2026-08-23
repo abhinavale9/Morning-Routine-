@@ -59,6 +59,27 @@ button{font:inherit}
 .item{font-size:18px;font-weight:400;padding:13px 0;border-bottom:1px solid #181818}
 .divider{height:1px;background:#222;margin:28px 0}
 .countdown{position:fixed;inset:0;background:#000;z-index:50;display:none;align-items:center;justify-content:center;font-size:clamp(120px,35vw,190px);font-weight:300}
+
+.login{position:fixed;inset:0;background:#000;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{width:min(100%,380px)}
+.login-title{font-size:13px;letter-spacing:2px;font-weight:400;margin-bottom:42px}
+.login-field{width:100%;height:52px;background:#0c0c0c;border:1px solid #252525;border-radius:14px;color:#fff;padding:0 16px;margin-bottom:12px;outline:none}
+.login-field:focus{border-color:#555}
+.login-btn{width:100%;height:52px;border:0;border-radius:14px;background:#fff;color:#000;font-weight:500}
+.login-error{height:22px;color:#999;font-size:12px;margin-top:12px;text-align:center}
+.progress{display:none;flex-direction:column;padding:22px;overflow:auto}
+.progress-content{padding:24px 4px}
+.stat-card{border:1px solid #222;background:#0c0c0c;border-radius:18px;padding:20px;margin-bottom:12px}
+.stat-big{font-size:42px;font-weight:300}
+.stat-label{font-size:12px;color:#777;letter-spacing:1.5px;margin-top:4px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:18px}
+.week-day{text-align:center;font-size:10px;color:#777}
+.week-dot{width:34px;height:34px;border-radius:50%;margin:7px auto 0;display:flex;align-items:center;justify-content:center;border:1px solid #292929;font-size:12px}
+.week-dot.done{background:#fff;color:#000;border-color:#fff}
+.week-dot.partial{border-color:#aaa;color:#fff}
+.progress-list{margin-top:18px}
+.progress-row{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #181818;font-size:15px}
+.backup-btn{width:100%;height:46px;border:1px solid #333;background:#111;color:#fff;border-radius:13px;margin-top:10px}
 </style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
@@ -70,7 +91,7 @@ button{font:inherit}
 <body>
 
 <section id="home" class="page home">
-  <div class="home-head"><div class="home-title">MORNING ROUTINE</div><button class="calendar-btn" id="calendarBtn" type="button" aria-label="Weekly routine">▣</button></div>
+  <div class="home-head"><div class="home-title">MORNING ROUTINE</div><div><button class="calendar-btn" id="progressBtn" type="button" aria-label="Progress">◔</button><button class="calendar-btn" id="calendarBtn" type="button" aria-label="Weekly routine">▣</button></div></div>
   <div class="menu">
     <button class="option" data-key="morning"><span class="option-name">Warmup</span><span class="option-time">~7 MIN&nbsp; →</span></button>
     <button class="option" data-key="gym"><span class="option-name">Gym</span><span class="option-time">~30 MIN&nbsp; →</span></button>
@@ -278,7 +299,7 @@ function tick(){
 }
 function skip(){if(!running)return;index++;if(index>=steps.length){finish();return}left=steps[index][1];render();speak(steps[index][2]?"Rest":steps[index][0])}
 function restart(){stop();index=0;left=steps[0][1];main.textContent="▶ Start";render()}
-function finish(){stop();left=0;exercise.textContent="GREAT JOB";side.textContent="";seconds.textContent="00";bar.style.width="100%";main.textContent="↻ Restart";tone("complete");speak("Workout complete. Great job!")}
+function finish(){stop();left=0;markRoutineComplete(routines[key].title);exercise.textContent="GREAT JOB";side.textContent="";seconds.textContent="00";bar.style.width="100%";main.textContent="↻ Restart";tone("complete");speak("Workout complete. Great job!")}
 function settings(){document.getElementById("panel").classList.toggle("open")}
 function setSound(){sound=!sound;localStorage.setItem("morningSound",sound?"on":"off");document.getElementById("sound").textContent=sound?"On":"Off"}
 function setVoice(){voice=!voice;localStorage.setItem("morningVoice",voice?"on":"off");document.getElementById("voice").textContent=voice?"On":"Off"}
@@ -286,6 +307,14 @@ function setWake(){wake=!wake;localStorage.setItem("morningWake",wake?"on":"off"
 
 document.querySelectorAll(".option").forEach(b=>b.addEventListener("click",()=>select(b.dataset.key)));
 document.getElementById("calendarBtn").onclick=()=>{stop();showOnly("calendar")};
+document.getElementById("progressBtn").onclick=()=>{stop();openProgress()};
+document.getElementById("progressBack").onclick=closeProgress;
+document.getElementById("backupBtn").onclick=backupData;
+document.getElementById("restoreBtn").onclick=()=>document.getElementById("restoreFile").click();
+document.getElementById("restoreFile").addEventListener("change",e=>{if(e.target.files[0])restoreData(e.target.files[0]);e.target.value=""});
+document.getElementById("loginBtn").onclick=login;
+document.getElementById("loginPass").addEventListener("keydown",e=>{if(e.key==="Enter")login()});
+
 document.getElementById("calendarBack").onclick=back;
 document.getElementById("timerBack").onclick=back;
 document.getElementById("gymBack").onclick=back;
@@ -301,6 +330,100 @@ document.getElementById("sound").textContent=sound?"On":"Off";
 document.getElementById("voice").textContent=voice?"On":"Off";
 document.getElementById("wake").textContent=wake?"On":"Off";
 showOnly("home");
+
+
+function login(){
+ const u=document.getElementById("loginUser").value.trim();
+ const pw=document.getElementById("loginPass").value;
+ const err=document.getElementById("loginError");
+ if(u==="Abhishek" && pw==="dAsH@1990"){
+   sessionStorage.setItem("morningLoggedIn","1");
+   document.getElementById("login").style.display="none";
+   err.textContent="";
+ }else err.textContent="Invalid username or password";
+}
+
+// Daily compliance + backup/restore
+const progressKey="morningRoutineProgress";
+function loadProgress(){try{return JSON.parse(localStorage.getItem(progressKey)||"{}")}catch(e){return {}}}
+function saveProgress(p){localStorage.setItem(progressKey,JSON.stringify(p))}
+function todayKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function plannedForDate(d){
+ const day=d.getDay();
+ if(day===0)return ["Warmup","HIIT","Meditation"];
+ if(day===3||day===6)return ["Warmup","Walk","Core","Foam Rolling","Yoga","Meditation"];
+ return ["Warmup","Gym","Core","Foam Rolling","Yoga","Meditation"];
+}
+function markRoutineComplete(name){
+ const p=loadProgress(),k=todayKey();
+ if(!p[k])p[k]={};
+ p[k][name]=true;
+ saveProgress(p);
+}
+function dateOffset(base,n){const d=new Date(base);d.setDate(d.getDate()+n);return d}
+function dayCompliance(d){
+ const p=loadProgress()[todayKey(d)]||{},plan=plannedForDate(d);
+ const done=plan.filter(x=>p[x]).length;
+ return {done,total:plan.length,pct:Math.round(done/plan.length*100),complete:done===plan.length};
+}
+function calcStreak(){
+ let d=new Date(),streak=0;
+ // Count today if complete; otherwise start from yesterday.
+ if(!dayCompliance(d).complete)d=dateOffset(d,-1);
+ while(dayCompliance(d).complete){streak++;d=dateOffset(d,-1)}
+ return streak;
+}
+function renderProgress(){
+ const now=new Date(),p=loadProgress();
+ let monthDone=0,monthTotal=0;
+ const y=now.getFullYear(),m=now.getMonth();
+ for(let day=1;day<=new Date(y,m+1,0).getDate();day++){
+   const d=new Date(y,m,day);
+   if(d>now)continue;
+   const c=dayCompliance(d);monthDone+=c.done;monthTotal+=c.total;
+ }
+ document.getElementById("monthCompliance").textContent=(monthTotal?Math.round(monthDone/monthTotal*100):0)+"%";
+ document.getElementById("currentStreak").textContent=calcStreak();
+ const monday=new Date(now); const offset=(now.getDay()+6)%7; monday.setDate(now.getDate()-offset);
+ let weekDone=0;
+ const grid=document.getElementById("weekGrid");grid.innerHTML="";
+ ["M","T","W","T","F","S","S"].forEach((name,i)=>{
+   const d=dateOffset(monday,i),c=dayCompliance(d);
+   if(c.complete)weekDone++;
+   const wrap=document.createElement("div");wrap.className="week-day";wrap.textContent=name;
+   const dot=document.createElement("div");dot.className="week-dot "+(c.complete?"done":(c.done?"partial":""));dot.textContent=c.complete?"✓":(c.done?c.pct+"%":"—");
+   wrap.appendChild(dot);grid.appendChild(wrap);
+ });
+ document.getElementById("weekCompliance").textContent=weekDone+" / 7";
+ const list=document.getElementById("progressList");list.innerHTML="";
+ const entries=Object.keys(p).sort().reverse().slice(0,14);
+ entries.forEach(k=>{
+   const d=new Date(k+"T12:00:00"),c=dayCompliance(d);
+   const row=document.createElement("div");row.className="progress-row";
+   row.innerHTML="<span>"+k+"</span><span>"+c.done+" / "+c.total+" · "+c.pct+"%</span>";
+   list.appendChild(row);
+ });
+}
+function openProgress(){renderProgress();document.getElementById("menuView").style.display="none";document.getElementById("progressPage").style.display="flex"}
+function closeProgress(){document.getElementById("progressPage").style.display="none";document.getElementById("menuView").style.display="flex"}
+function backupData(){
+ const payload={version:1,exportedAt:new Date().toISOString(),progress:loadProgress(),settings:{
+   sound:localStorage.getItem("morningSound"),voice:localStorage.getItem("morningVoice"),wake:localStorage.getItem("morningWake")
+ }};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="MorningRoutine_Backup_"+todayKey()+".json";a.click();URL.revokeObjectURL(a.href);
+}
+function restoreData(file){
+ const r=new FileReader();
+ r.onload=()=>{try{
+   const x=JSON.parse(r.result);if(!x.progress)throw Error();
+   saveProgress(x.progress);
+   if(x.settings){Object.entries(x.settings).forEach(([k,v])=>{if(v!==null)localStorage.setItem(k==="sound"?"morningSound":k==="voice"?"morningVoice":"morningWake",v)})}
+   renderProgress();alert("Backup restored successfully.");
+ }catch(e){alert("Invalid backup file.")}};
+ r.readAsText(file);
+}
+
 })();
 </script>
 <script>
