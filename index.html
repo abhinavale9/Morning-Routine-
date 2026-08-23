@@ -568,7 +568,6 @@ window.MorningRoutineEnhancedTracker={render,mark};
 "use strict";
 const USER="Abhishek";
 const PASS="dAsH@1990";
-const LSKEY="morningRoutine.authenticated";
 const screen=document.getElementById("loginScreen");
 const user=document.getElementById("loginUser");
 const pass=document.getElementById("loginPass");
@@ -587,7 +586,6 @@ function showLogin(){
 }
 function login(){
   if(user.value===USER && pass.value===PASS){
-    localStorage.setItem(LSKEY,"true");
     showApp();
   }else{
     error.textContent="Invalid username or password";
@@ -599,13 +597,13 @@ button.addEventListener("click",login);
 pass.addEventListener("keydown",e=>{if(e.key==="Enter")login()});
 user.addEventListener("keydown",e=>{if(e.key==="Enter")pass.focus()});
 if(logout)logout.addEventListener("click",()=>{
-  localStorage.removeItem(LSKEY);
   const panel=document.getElementById("panel");
   if(panel)panel.classList.remove("open");
   showLogin();
 });
-if(localStorage.getItem(LSKEY)==="true")showApp();
-else showLogin();
+
+// Always require login on a fresh app/page load.
+showLogin();
 })();
 </script>
 </body>
