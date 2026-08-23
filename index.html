@@ -1,6 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
+<!doctype html><html><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#000">
@@ -59,69 +57,81 @@ button{font:inherit}
 .item{font-size:18px;font-weight:400;padding:13px 0;border-bottom:1px solid #181818}
 .divider{height:1px;background:#222;margin:28px 0}
 .countdown{position:fixed;inset:0;background:#000;z-index:50;display:none;align-items:center;justify-content:center;font-size:clamp(120px,35vw,190px);font-weight:300}
+</style>
+
 <style>
-#mrProgress{display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:200;padding:22px;overflow:auto}
-#mrProgressInner{max-width:520px;margin:auto}
-.mrHead{display:flex;align-items:center;height:42px;margin-bottom:24px}
-.mrBack{border:0;background:transparent;color:#777;font-size:32px;width:42px;padding:0}
-.mrTitle{font-size:13px;letter-spacing:2px;flex:1}
-.mrCard{background:#0c0c0c;border:1px solid #222;border-radius:18px;padding:20px;margin:12px 0}
-.mrBig{font-size:42px;font-weight:300}.mrLabel{font-size:11px;color:#777;letter-spacing:1.4px}
-.mrWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:20px 0}
-.mrDay{text-align:center;color:#777;font-size:10px}.mrDot{width:34px;height:34px;border:1px solid #292929;border-radius:50%;margin:6px auto 0;display:flex;align-items:center;justify-content:center;font-size:10px}.mrDot.done{background:#fff;color:#000;border-color:#fff}
-.mrRow{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #181818;font-size:14px}
-.mrBtn{width:100%;height:46px;background:#111;color:#fff;border:1px solid #333;border-radius:13px;margin-top:10px}
-#mrProgressBtn{border:0;background:transparent;color:#777;font-size:22px;padding:6px;margin-left:4px}
-<style id="tracker-css">
-.mrHome{height:100dvh;max-width:520px;margin:auto;background:#000;color:#fff;display:flex;flex-direction:column;padding:28px 22px 20px}
-.mrHomeTitle{font-size:13px;letter-spacing:2px}
-.mrHomeOptions{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px}
-.mrHomeOption{width:100%;min-height:76px;border:1px solid #222;border-radius:18px;background:#0c0c0c;color:#fff;padding:0 20px;display:flex;justify-content:space-between;align-items:center;font-size:20px}
-.mrHomeSettings{border-top:1px solid #181818;padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mrHomeSettings button{border:0;background:#0c0c0c;color:#777;border-radius:12px;height:40px;font-size:11px}
-.mrTrack{display:none;position:fixed;inset:0;background:#000;color:#fff;z-index:500;overflow:auto;padding:22px}
-.mrTrackInner{max-width:520px;margin:auto}.mrHead{display:flex;align-items:center;height:42px;margin-bottom:24px}
-.mrBack{border:0;background:transparent;color:#777;font-size:32px;width:42px}.mrTitle{font-size:13px;letter-spacing:2px}
-.mrCard{background:#0c0c0c;border:1px solid #222;border-radius:18px;padding:20px;margin:12px 0}
-.mrBig{font-size:42px;font-weight:300}.mrLabel{font-size:11px;color:#777;letter-spacing:1.4px}
-.mrTodayRow,.mrHistRow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #181818;font-size:14px}
-.mrDone{border:1px solid #333;background:#111;color:#aaa;border-radius:10px;padding:7px 10px;font-size:11px}.mrDone.ok{background:#fff;color:#000}
-.mrWeek{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:20px 0}.mrDay{text-align:center;color:#777;font-size:10px}
-.mrDot{width:34px;height:34px;border:1px solid #292929;border-radius:50%;margin:6px auto 0;display:flex;align-items:center;justify-content:center;font-size:10px}.mrDot.ok{background:#fff;color:#000}
-.mrBtn{width:100%;height:46px;background:#111;color:#fff;border:1px solid #333;border-radius:13px;margin-top:10px}
-</style></style></style>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#000000">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Morning Routine">
-</head>
-<body><section id="mrTrack" class="mrTrack"><div class="mrTrackInner">
-<div class="mrHead"><button class="mrBack" id="mrTrackBack">‹</button><div class="mrTitle">TRACKER</div></div>
-<div class="mrCard"><div class="mrBig" id="mrMonth">0%</div><div class="mrLabel">MONTHLY COMPLIANCE</div></div>
-<div class="mrCard"><div class="mrBig" id="mrStreak">0</div><div class="mrLabel">CURRENT STREAK · DAYS</div></div>
-<div class="mrCard"><div class="mrBig" id="mrWeek">0 / 7</div><div class="mrLabel">THIS WEEK · DAYS COMPLIANT</div></div>
-<div class="mrCard"><div class="mrLabel">TODAY</div><div id="mrToday"></div></div>
-<div class="mrWeek" id="mrWeekGrid"></div>
-<div class="mrCard"><div class="mrLabel">HISTORY</div><div id="mrHistory"></div></div>
-<button class="mrBtn" id="mrBackup">Backup Data</button>
-<button class="mrBtn" id="mrRestore">Restore Data</button>
-<input id="mrFile" type="file" accept=".json,application/json" style="display:none">
-</div></section>
-<section id="mrProgress">
-  <div id="mrProgressInner">
-    <div class="mrHead"><button class="mrBack" id="mrBack">‹</button><div class="mrTitle">PROGRESS</div></div>
-    <div class="mrCard"><div class="mrBig" id="mrMonth">0%</div><div class="mrLabel">MONTHLY COMPLIANCE</div></div>
-    <div class="mrCard"><div class="mrBig" id="mrStreak">0</div><div class="mrLabel">CURRENT STREAK · DAYS</div></div>
-    <div class="mrCard"><div class="mrBig" id="mrWeek">0 / 7</div><div class="mrLabel">THIS WEEK · DAYS COMPLIANT</div></div>
-    <div class="mrWeek" id="mrWeekGrid"></div>
-    <div id="mrHistory"></div>
-    <button class="mrBtn" id="mrBackup">Backup Data</button>
-    <button class="mrBtn" id="mrRestore">Restore Data</button>
-    <input id="mrFile" type="file" accept=".json,application/json" style="display:none">
-  </div>
-</section>
+html,body{margin:0;padding:0;background:#000;color:#fff}
+#appShell{position:fixed;inset:0;background:#000;z-index:99999;overflow:auto}
+#appHome{min-height:100dvh;max-width:520px;margin:auto;box-sizing:border-box;padding:28px 22px 20px;display:flex;flex-direction:column}
+.appBrand{font-size:13px;letter-spacing:2px}
+.homeChoices{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.homeChoice{height:82px;border:1px solid #252525;border-radius:18px;background:#0c0c0c;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:20px}
+.homeSettings{border-top:1px solid #181818;padding-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.homeSettings button{height:40px;border:0;background:#0c0c0c;color:#777;border-radius:12px;font-size:11px}
+#routineScreen,#trackerScreen,#scheduleScreen{display:none;position:fixed;inset:0;background:#000;z-index:99998;overflow:auto}
+.subHead{height:64px;display:flex;align-items:center;padding:0 18px;box-sizing:border-box;gap:8px}
+.subBack{border:0;background:transparent;color:#777;font-size:32px;width:42px}
+.subTitle{font-size:13px;letter-spacing:2px}
+#routineHost{min-height:calc(100dvh - 64px)}
+#trackerScreen{padding:0 20px;box-sizing:border-box}
+.trackerInner{max-width:520px;margin:auto}
+.card{background:#0c0c0c;border:1px solid #222;border-radius:18px;padding:20px;margin:12px 0}
+.big{font-size:42px;font-weight:300}.label{font-size:11px;color:#777;letter-spacing:1.4px}
+.todayRow,.histRow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid #181818;font-size:14px}
+.doneBtn{border:1px solid #333;background:#111;color:#aaa;border-radius:10px;padding:7px 10px;font-size:11px}
+.doneBtn.done{background:#fff;color:#000;border-color:#fff}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:20px 0}
+.day{text-align:center;color:#777;font-size:10px}.dot{width:34px;height:34px;border:1px solid #292929;border-radius:50%;margin:6px auto 0;display:flex;align-items:center;justify-content:center;font-size:10px}.dot.done{background:#fff;color:#000}
+.dataBtn{width:100%;height:46px;background:#111;color:#fff;border:1px solid #333;border-radius:13px;margin-top:10px}
+</style>
+<link rel="manifest" href="./manifest.json"><meta name="theme-color" content="#000000"><meta name="mobile-web-app-capable" content="yes"></head><body>
+<div id="appShell">
+  <section id="appHome">
+    <div class="appBrand">MORNING ROUTINE</div>
+    <div class="homeChoices">
+      <button class="homeChoice" id="homeRoutine"><span>Routine</span><span>→</span></button>
+      <button class="homeChoice" id="homeTracker"><span>Tracker</span><span>→</span></button>
+    </div>
+    <div class="homeSettings">
+      <button id="homeSound">Sound</button>
+      <button id="homeVoice">Voice</button>
+      <button id="homeWake">Screen Awake</button>
+      <button id="homeSchedule">Weekly Schedule</button>
+    </div>
+  </section>
+
+  <section id="routineScreen">
+    <div class="subHead"><button class="subBack" id="routineBack">‹</button><div class="subTitle">ROUTINE</div></div>
+    <div id="routineHost"></div>
+  </section>
+
+  <section id="trackerScreen">
+    <div class="trackerInner">
+      <div class="subHead"><button class="subBack" id="trackerBack">‹</button><div class="subTitle">TRACKER</div></div>
+      <div class="card"><div class="big" id="monthly">0%</div><div class="label">MONTHLY COMPLIANCE</div></div>
+      <div class="card"><div class="big" id="streak">0</div><div class="label">CURRENT STREAK · DAYS</div></div>
+      <div class="card"><div class="big" id="weekly">0 / 7</div><div class="label">THIS WEEK · DAYS COMPLIANT</div></div>
+      <div class="card"><div class="label">TODAY</div><div id="todayList"></div></div>
+      <div class="week" id="weekGrid"></div>
+      <div class="card"><div class="label">HISTORY</div><div id="history"></div></div>
+      <button class="dataBtn" id="backup">Backup Data</button>
+      <button class="dataBtn" id="restore">Restore Data</button>
+      <input id="restoreFile" type="file" accept=".json,application/json" style="display:none">
+    </div>
+  </section>
+
+  <section id="scheduleScreen">
+    <div class="subHead"><button class="subBack" id="scheduleBack">‹</button><div class="subTitle">WEEKLY SCHEDULE</div></div>
+    <div class="trackerInner" style="padding:0 20px">
+      <div class="card">Monday / Tuesday / Thursday / Friday<br><br>Warmup → Gym → Core → Foam Rolling → Yoga → Meditation</div>
+      <div class="card">Wednesday / Saturday<br><br>Warmup → Walk → Core → Foam Rolling → Yoga → Meditation</div>
+      <div class="card">Sunday<br><br>Warmup → HIIT → Meditation</div>
+    </div>
+  </section>
+</div>
+
+<!-- Original app is retained intact below the shell. -->
+<div id="originalApp" style="display:none">
 
 
 <section id="home" class="page home">
@@ -359,140 +369,60 @@ showOnly("home");
 })();
 </script>
 
+</div>
+
 <script>
 (function(){
 "use strict";
-const MR_KEY="morningRoutine.progress.v1";
-function mrLoad(){try{return JSON.parse(localStorage.getItem(MR_KEY)||"{}")}catch(e){return {}}}
-function mrSave(x){localStorage.setItem(MR_KEY,JSON.stringify(x))}
-function mrDate(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function mrAdd(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
-function mrPlan(d){
-  const day=d.getDay();
-  if(day===0)return ["Warmup","HIIT","Meditation"];
-  if(day===3||day===6)return ["Warmup","Walk","Core","Foam Rolling","Yoga","Meditation"];
-  return ["Warmup","Gym","Core","Foam Rolling","Yoga","Meditation"];
+const DATA="morningRoutine.progress.v3";
+function D(){try{return JSON.parse(localStorage.getItem(DATA)||"{}")}catch(e){return{}}}
+function S(x){localStorage.setItem(DATA,JSON.stringify(x))}
+function K(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function A(d,n){let x=new Date(d);x.setDate(x.getDate()+n);return x}
+function P(d){let n=d.getDay();return n===0?["Warmup","HIIT","Meditation"]:(n===3||n===6?["Warmup","Walk","Core","Foam Rolling","Yoga","Meditation"]:["Warmup","Gym","Core","Foam Rolling","Yoga","Meditation"])}
+function C(d){let x=D()[K(d)]||{},p=P(d),done=p.filter(n=>x[n]).length;return{p,x,done,total:p.length,pct:Math.round(done/p.length*100),full:done===p.length}}
+function mark(n){let x=D(),k=K(new Date());x[k]=x[k]||{};x[k][n]=true;S(x);render()}
+function streak(){let d=new Date(),s=0;if(!C(d).full)d=A(d,-1);while(C(d).full){s++;d=A(d,-1)}return s}
+function render(){
+ let now=new Date(),d=0,t=0;for(let i=1;i<=now.getDate();i++){let c=C(new Date(now.getFullYear(),now.getMonth(),i));d+=c.done;t+=c.total}
+ document.getElementById("monthly").textContent=(t?Math.round(d/t*100):0)+"%";
+ document.getElementById("streak").textContent=streak();
+ let mon=A(now,-((now.getDay()+6)%7)),g=document.getElementById("weekGrid"),full=0;g.innerHTML="";
+ ["M","T","W","T","F","S","S"].forEach((n,i)=>{let c=C(A(mon,i));if(c.full)full++;let a=document.createElement("div");a.className="day";a.textContent=n;let b=document.createElement("div");b.className="dot"+(c.full?" done":"");b.textContent=c.full?"✓":(c.done?c.pct+"%":"—");a.appendChild(b);g.appendChild(a)});
+ document.getElementById("weekly").textContent=full+" / 7";
+ let c=C(now),tl=document.getElementById("todayList");tl.innerHTML="";c.p.forEach(n=>{let r=document.createElement("div");r.className="todayRow";r.innerHTML="<span>"+n+"</span>";let b=document.createElement("button");b.className="doneBtn"+(c.x[n]?" done":"");b.textContent=c.x[n]?"✓ Complete":"Mark Complete";b.onclick=()=>mark(n);r.appendChild(b);tl.appendChild(r)});
+ let h=document.getElementById("history");h.innerHTML="";Object.keys(D()).sort().reverse().slice(0,30).forEach(k=>{let c=C(new Date(k+"T12:00:00")),r=document.createElement("div");r.className="histRow";r.innerHTML="<span>"+k+"</span><span>"+c.done+" / "+c.total+" · "+c.pct+"%</span>";h.appendChild(r)})
 }
-function mrComp(d){
-  const data=mrLoad()[mrDate(d)]||{}, p=mrPlan(d);
-  const done=p.filter(x=>data[x]).length;
-  return {done:done,total:p.length,pct:Math.round(done/p.length*100),full:done===p.length};
-}
-function mrMark(name){
-  const data=mrLoad(),k=mrDate(new Date());
-  data[k]=data[k]||{};data[k][name]=true;mrSave(data);
-}
-function mrStreak(){
-  let d=new Date(),s=0;
-  if(!mrComp(d).full)d=mrAdd(d,-1);
-  while(mrComp(d).full){s++;d=mrAdd(d,-1)}
-  return s;
-}
-function mrRender(){
-  const now=new Date(), data=mrLoad();
-  let done=0,total=0;
-  for(let i=1;i<=now.getDate();i++){const c=mrComp(new Date(now.getFullYear(),now.getMonth(),i));done+=c.done;total+=c.total}
-  document.getElementById("mrMonth").textContent=(total?Math.round(done/total*100):0)+"%";
-  document.getElementById("mrStreak").textContent=mrStreak();
-  const monday=mrAdd(now,-((now.getDay()+6)%7)),grid=document.getElementById("mrWeekGrid");
-  grid.innerHTML="";let full=0;
-  ["M","T","W","T","F","S","S"].forEach((n,i)=>{
-    const c=mrComp(mrAdd(monday,i));if(c.full)full++;
-    const d=document.createElement("div");d.className="mrDay";d.textContent=n;
-    const dot=document.createElement("div");dot.className="mrDot"+(c.full?" done":"");dot.textContent=c.full?"✓":(c.done?c.pct+"%":"—");
-    d.appendChild(dot);grid.appendChild(d);
-  });
-  document.getElementById("mrWeek").textContent=full+" / 7";
-  const h=document.getElementById("mrHistory");h.innerHTML="";
-  Object.keys(data).sort().reverse().slice(0,14).forEach(k=>{
-    const c=mrComp(new Date(k+"T12:00:00")),r=document.createElement("div");r.className="mrRow";
-    r.innerHTML="<span>"+k+"</span><span>"+c.done+" / "+c.total+" · "+c.pct+"%</span>";h.appendChild(r);
-  });
-}
-function mrOpen(){mrRender();document.getElementById("mrProgress").style.display="block"}
-function mrClose(){document.getElementById("mrProgress").style.display="none"}
-function mrBackup(){
-  const payload={format:"MorningRoutineBackup",version:1,created:new Date().toISOString(),progress:mrLoad()};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);a.download="MorningRoutine_Backup_"+mrDate(new Date())+".json";a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-}
-function mrRestore(file){
-  const reader=new FileReader();
-  reader.onload=function(){
-    try{const x=JSON.parse(reader.result);if(x.format!=="MorningRoutineBackup"||!x.progress)throw 0;mrSave(x.progress);mrRender();alert("Backup restored successfully.");}
-    catch(e){alert("Invalid Morning Routine backup file.");}
-  };
-  reader.readAsText(file);
-}
+function show(id){["appHome","routineScreen","trackerScreen","scheduleScreen"].forEach(x=>document.getElementById(x).style.display="none");document.getElementById(id).style.display=(id==="appHome"?"flex":"block")}
+document.getElementById("homeRoutine").onclick=()=>{show("routineScreen");document.getElementById("originalApp").style.display="block"};
+document.getElementById("routineBack").onclick=()=>{if(typeof stop==="function")stop();show("appHome");document.getElementById("originalApp").style.display="none"};
+document.getElementById("homeTracker").onclick=()=>{render();show("trackerScreen")};
+document.getElementById("trackerBack").onclick=()=>show("appHome");
+document.getElementById("homeSchedule").onclick=()=>show("scheduleScreen");
+document.getElementById("scheduleBack").onclick=()=>show("appHome");
 
-document.getElementById("mrBack").onclick=mrClose;
-document.getElementById("mrBackup").onclick=mrBackup;
-document.getElementById("mrRestore").onclick=()=>document.getElementById("mrFile").click();
-document.getElementById("mrFile").onchange=e=>{if(e.target.files[0])mrRestore(e.target.files[0]);e.target.value=""};
+function setting(name,fn,label){document.getElementById(name).onclick=function(){try{if(typeof window[fn]==="function")window[fn]()}catch(e){};this.textContent=label+" · On"}}
+setting("homeSound","setSound","Sound");
+setting("homeVoice","setVoice","Voice");
+setting("homeWake","setWake","Screen Awake");
 
-// Add progress control to home header without changing existing buttons.
-const head=document.querySelector(".home-head");
-if(head){
-  const b=document.createElement("button");b.id="mrProgressBtn";b.textContent="◔";b.title="Progress";b.onclick=mrOpen;head.appendChild(b);
-}
+document.getElementById("backup").onclick=function(){let b=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:3,progress:D()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="MorningRoutine_Backup_"+K(new Date())+".json";a.click()};
+document.getElementById("restore").onclick=()=>document.getElementById("restoreFile").click();
+document.getElementById("restoreFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.progress)throw 0;S(x.progress);render();alert("Backup restored successfully.")}catch(z){alert("Invalid backup file.")}};r.readAsText(f);e.target.value=""};
 
-// Mark a routine complete by observing the existing "GREAT JOB" completion state.
-// This deliberately does not replace finish(), start(), back(), or any timer function.
-let mrLast="";
+// Keep the new home as the only initial screen.
+document.getElementById("originalApp").style.display="none";
+show("appHome");
+
+// Observe the existing completion screen without replacing timer functions.
+let last="";
 setInterval(function(){
-  const ex=document.getElementById("exercise");
-  const title=document.getElementById("timerTitle");
-  if(!ex||!title)return;
-  if(ex.textContent.trim()==="GREAT JOB"){
-    const name=title.textContent.trim().replace(/^./,x=>x.toUpperCase());
-    if(name && name!==mrLast){mrMark(name);mrLast=name}
-  }else if(ex.textContent.trim()===""){
-    mrLast="";
-  }
+ const ex=document.getElementById("exercise"), ti=document.getElementById("timerTitle");
+ if(ex&&ti&&ex.textContent.trim()==="GREAT JOB"){
+   let n=ti.textContent.trim();
+   if(n&&n!==last){mark(n.charAt(0).toUpperCase()+n.slice(1));last=n}
+ } else if(ex&&ex.textContent.trim()!=="GREAT JOB") last="";
 },500);
 })();
 </script>
-<script>
-if("serviceWorker" in navigator){
- window.addEventListener("load",function(){
-   navigator.serviceWorker.register("./sw.js?v=5",{updateViaCache:"none"}).catch(function(){});
- });
-}
-</script><script>
-(function(){
-"use strict";
-const K="morningRoutine.progress.v2";
-const q=id=>document.getElementById(id);
-const load=()=>{try{return JSON.parse(localStorage.getItem(K)||"{}")}catch(e){return{}}};
-const save=x=>localStorage.setItem(K,JSON.stringify(x));
-const key=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-const add=(d,n)=>{let x=new Date(d);x.setDate(x.getDate()+n);return x};
-function plan(d){let n=d.getDay();return n===0?["Warmup","HIIT","Meditation"]:(n===3||n===6?["Warmup","Walk","Core","Foam Rolling","Yoga","Meditation"]:["Warmup","Gym","Core","Foam Rolling","Yoga","Meditation"])}
-function stat(d){let p=plan(d),x=load()[key(d)]||{},done=p.filter(n=>x[n]).length;return{p,x,done,total:p.length,full:done===p.length,pct:Math.round(done/p.length*100)}}
-function mark(n){let x=load(),k=key(new Date());x[k]=x[k]||{};x[k][n]=true;save(x);render()}
-function streak(){let d=new Date(),s=0;if(!stat(d).full)d=add(d,-1);while(stat(d).full){s++;d=add(d,-1)}return s}
-function render(){
- let now=new Date(),d=0,t=0;for(let i=1;i<=now.getDate();i++){let c=stat(new Date(now.getFullYear(),now.getMonth(),i));d+=c.done;t+=c.total}
- q("mrMonth").textContent=(t?Math.round(d/t*100):0)+"%";q("mrStreak").textContent=streak();
- let mon=add(now,-((now.getDay()+6)%7)),full=0,g=q("mrWeekGrid");g.innerHTML="";
- ["M","T","W","T","F","S","S"].forEach((n,i)=>{let c=stat(add(mon,i));if(c.full)full++;let a=document.createElement("div");a.className="mrDay";a.textContent=n;let b=document.createElement("div");b.className="mrDot"+(c.full?" ok":"");b.textContent=c.full?"✓":(c.done?c.pct+"%":"—");a.appendChild(b);g.appendChild(a)});q("mrWeek").textContent=full+" / 7";
- let c=stat(now),tl=q("mrToday");tl.innerHTML="";c.p.forEach(n=>{let r=document.createElement("div");r.className="mrTodayRow";r.innerHTML="<span>"+n+"</span>";let b=document.createElement("button");b.className="mrDone"+(c.x[n]?" ok":"");b.textContent=c.x[n]?"✓ Complete":"Mark Complete";b.onclick=()=>mark(n);r.appendChild(b);tl.appendChild(r)});
- let h=q("mrHistory");h.innerHTML="";Object.keys(load()).sort().reverse().slice(0,30).forEach(k=>{let c=stat(new Date(k+"T12:00:00")),r=document.createElement("div");r.className="mrHistRow";r.innerHTML="<span>"+k+"</span><span>"+c.done+" / "+c.total+" · "+c.pct+"%</span>";h.appendChild(r)})
-}
-q("mrTracker").onclick=()=>{render();q("mrTrack").style.display="block"};
-q("mrTrackBack").onclick=()=>q("mrTrack").style.display="none";
-q("mrRoutine").onclick=()=>{q("mrHome").style.display="none";q("menuView").style.display="flex"};
-q("mrSchedule").onclick=()=>{q("mrHome").style.display="none";q("calendar").style.display="flex"};
-q("mrSound").onclick=()=>{if(typeof setSound==="function")setSound();labels()};
-q("mrVoice").onclick=()=>{if(typeof setVoice==="function")setVoice();labels()};
-q("mrWake").onclick=()=>{if(typeof setWake==="function")setWake();labels()};
-function labels(){q("mrSound").textContent="Sound · "+(typeof sound!=="undefined"&&sound?"On":"Off");q("mrVoice").textContent="Voice · "+(typeof voice!=="undefined"&&voice?"On":"Off");q("mrWake").textContent="Screen Awake · "+(typeof wake!=="undefined"&&wake?"On":"Off")}
-setTimeout(labels,200);
-q("mrBackup").onclick=()=>{let b=new Blob([JSON.stringify({format:"MorningRoutineBackup",version:2,progress:load()},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="MorningRoutine_Backup_"+key(new Date())+".json";a.click()};
-q("mrRestore").onclick=()=>q("mrFile").click();
-q("mrFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(x.format!=="MorningRoutineBackup")throw 0;save(x.progress);render();alert("Backup restored successfully.")}catch(e){alert("Invalid backup file.")}};r.readAsText(f);e.target.value=""};
-q("menuView").style.display="none";q("mrHome").style.display="flex";
-})();
-</script><script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=6",{updateViaCache:"none"}).catch(()=>{}));</script></body>
-</html>
+<script>if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=7",{updateViaCache:"none"}).catch(()=>{}));</script></body></html>

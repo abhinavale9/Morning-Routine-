@@ -1,1 +1,1 @@
-Replace index.html, manifest.json, sw.js, icon-192.svg and icon-512.svg in GitHub Pages. Login removed. Home has Routine, Tracker and settings. Tracker supports automatic/manual completion and backup/restore.
+Home-first build. Replace index.html, manifest.json, sw.js, icon-192.svg and icon-512.svg in GitHub Pages. Login removed. Home is the initial screen; Routine opens the original timer list; Tracker shows completion/history; settings are on Home.
